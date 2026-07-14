@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>LinguaFlow | Progreso</title>
+    <meta name="description" content="LinguaFlow, aplicación accesible para aprender inglés nivel B1 con lecciones interactivas.">
+    <link rel="stylesheet" href="/src/css/styles.css">
+</head>
+<body>
+    <a href="#contenido-principal" class="skip-link">Saltar al contenido principal</a>
+    <header class="topbar"><a class="brand" href="dashboard.html"><span class="logo" aria-hidden="true">☀️</span><strong>LinguaFlow</strong></a></header>
+    <nav class="main-nav" aria-label="Navegación principal">
+        <a href="dashboard.html">⌂ Inicio</a>
+        <a href="lecciones.html">▣ Lecciones</a>
+        <a href="practica.html">✤ Práctica</a>
+        <a href="progreso.html" class="active" aria-current="page">▥ Progreso</a>
+        <a href="config.html">⚙ Config.</a>
+    </nav>
+    <main id="contenido-principal" class="page-container" tabindex="-1">
+        <h1>Progreso del nivel B1</h1>
+        <section class="welcome-panel small-panel" aria-labelledby="progreso-general">
+            <h2 id="progreso-general">Avance general</h2>
+            <label for="progreso-b1">Progreso hacia B2</label>
+            <progress id="progreso-b1" value="47" max="100" aria-label="47 por ciento del nivel B1 completado"></progress>
+            <p>Has completado el 47% de las actividades B1.</p>
+        </section>
+        <section class="stats-grid">
+            <article class="stat-card" tabindex="0"><strong>3</strong><p>lecciones B1 iniciadas</p></article>
+            <article class="stat-card" tabindex="0"><strong>86%</strong><p>promedio de aciertos</p></article>
+            <article class="stat-card" tabindex="0"><strong>340</strong><p>XP acumulados</p></article>
+        </section>
+    </main>
+    <script type="module" src="/src/js/app.js"></script>
+</body>
+</html>

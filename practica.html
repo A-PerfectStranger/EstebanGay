@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>LinguaFlow | Práctica B1</title>
+    <meta name="description" content="LinguaFlow, aplicación accesible para aprender inglés nivel B1 con lecciones interactivas.">
+    <link rel="stylesheet" href="/src/css/styles.css">
+</head>
+<body>
+    <a href="#contenido-principal" class="skip-link">Saltar al contenido principal</a>
+    <header class="topbar">
+        <a class="brand" href="dashboard.html" aria-label="LinguaFlow, ir al inicio"><span class="logo" aria-hidden="true">☀️</span><strong>LinguaFlow</strong></a>
+        <section class="status" aria-label="Estado del usuario">
+            <span aria-label="Nivel B1">B1</span>
+            <span aria-label="340 puntos de experiencia">⚡ 340</span>
+        </section>
+    </header>
+    <nav class="main-nav" aria-label="Navegación principal">
+        <a href="dashboard.html">⌂ Inicio</a>
+        <a href="lecciones.html">▣ Lecciones</a>
+        <a href="practica.html" class="active" aria-current="page">✤ Práctica</a>
+        <a href="progreso.html">▥ Progreso</a>
+        <a href="config.html">⚙ Config.</a>
+    </nav>
+
+    <main id="contenido-principal" class="page-container practice-container" tabindex="-1">
+        <a href="lecciones.html" class="back-link">← Volver a lecciones</a>
+        <h1 id="practice-title">Práctica B1</h1>
+        <p id="practice-description">Responde los ejercicios. Puedes navegar con Tab y seleccionar con Espacio o Enter.</p>
+
+        <section class="exercise-card" aria-labelledby="exercise-heading">
+            <div class="exercise-progress" aria-live="polite">
+                <span id="exercise-counter">Ejercicio 1 de 3</span>
+                <progress id="lesson-progress" value="1" max="3" aria-label="Progreso de la lección"></progress>
+            </div>
+
+            <h2 id="exercise-heading">Ejercicio</h2>
+            <p id="exercise-instruction"></p>
+
+            <form id="quiz-form">
+                <fieldset id="answers-fieldset">
+                    <legend id="answer-legend">Selecciona una respuesta</legend>
+                    <div id="answers-container"></div>
+                </fieldset>
+                <div class="practice-actions">
+                    <button type="submit" class="primary-button form-button" id="check-answer">Comprobar respuesta</button>
+                    <button type="button" class="secondary-button" id="next-question" disabled>Siguiente ejercicio</button>
+                </div>
+            </form>
+            <p id="feedback" class="feedback" aria-live="polite"></p>
+        </section>
+
+        <section class="lesson-help" aria-labelledby="help-title">
+            <h2 id="help-title">Apoyo accesible</h2>
+            <p id="lesson-explanation">Usa el botón para escuchar una explicación breve de la lección actual.</p>
+            <button class="secondary-button" id="readLesson">Escuchar explicación</button>
+        </section>
+    </main>
+    <script type="module" src="/src/js/app.js"></script>
+</body>
+</html>
