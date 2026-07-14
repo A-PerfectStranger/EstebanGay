@@ -5,6 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>LinguaFlow | Inicio</title>
     <meta name="description" content="LinguaFlow, aplicación accesible para aprender inglés nivel B1 con lecciones interactivas.">
+    <link rel="icon" href="/favicon.svg" type="image/svg+xml">
     <link rel="stylesheet" href="/src/css/styles.css">
 </head>
 <body>
@@ -12,60 +13,60 @@
 
     <header class="topbar">
         <a class="brand" href="dashboard.html" aria-label="LinguaFlow, ir al inicio">
-            <span class="logo" aria-hidden="true">☀️</span>
+            <span class="logo" data-icon="logo" data-icon-label="" data-icon-size="20"></span>
             <strong>LinguaFlow</strong>
         </a>
         <section class="status" aria-label="Estado del usuario">
-            <span aria-label="Racha de 0 días">🔥 0</span>
-            <span aria-label="Nivel B1">B1</span>
-            <span aria-label="0 puntos de experiencia">⚡ 0</span>
-            <button class="icon-button" aria-label="Abrir perfil del usuario">♙</button>
+            <span class="flame-stat" aria-label="Racha de 0 días"><span data-icon="flame" data-icon-size="16"></span><span data-stat="streak">0</span></span>
+            <span aria-label="Nivel actual"><span data-stat="level">A2</span></span>
+            <span class="xp-stat" aria-label="0 puntos de experiencia"><span data-icon="zap" data-icon-size="16"></span><span data-stat="xp">0</span></span>
+            <a class="icon-button" href="config.html" aria-label="Abrir configuración de perfil" data-icon="user"></a>
         </section>
     </header>
 
     <nav class="main-nav" aria-label="Navegación principal">
-        <a href="dashboard.html" class="active" aria-current="page">⌂ Inicio</a>
-        <a href="lecciones.html">▣ Lecciones</a>
-        <a href="practica.html?lesson=present-perfect">✤ Práctica</a>
-        <a href="progreso.html">▥ Progreso</a>
-        <a href="config.html">⚙ Config.</a>
+        <a href="dashboard.html" class="active" aria-current="page"><span data-icon="home" data-icon-size="18"></span>Inicio</a>
+        <a href="lecciones.html"><span data-icon="book" data-icon-size="18"></span>Lecciones</a>
+        <a href="practica.html?lesson=present-perfect"><span data-icon="target" data-icon-size="18"></span>Práctica</a>
+        <a href="progreso.html"><span data-icon="bar-chart" data-icon-size="18"></span>Progreso</a>
+        <a href="config.html"><span data-icon="settings" data-icon-size="18"></span>Config.</a>
     </nav>
 
     <main id="contenido-principal" class="page-container" tabindex="-1">
         <section class="welcome-panel" aria-labelledby="titulo-inicio">
             <p>Bienvenido/a de vuelta,</p>
-            <h1 id="titulo-inicio">Alex 👋</h1>
-            <label for="progreso-nivel">Nivel B1</label>
-            <progress id="progreso-nivel" value="0" max="300" aria-label="Progreso del nivel B1: 0 de 300 puntos de experiencia"></progress>
-            <p>0 de 300 XP. Completa lecciones B1 para avanzar hacia B2.</p>
+            <h1 id="titulo-inicio"><span data-stat="name">Alex</span></h1>
+            <label for="progreso-nivel">Nivel <span data-stat="level">A2</span></label>
+            <progress id="xp-progress" value="0" max="100"></progress>
+            <p id="xp-progress-text">0 de 100 XP. Completa lecciones B1 para avanzar de nivel.</p>
         </section>
 
         <section class="stats-grid" aria-label="Resumen de aprendizaje">
-            <article class="stat-card" tabindex="0">
-                <span aria-hidden="true">🔥</span>
-                <strong>0</strong>
+            <article class="stat-card flame-stat" tabindex="0">
+                <span data-icon="flame"></span>
+                <strong data-stat="streak">0</strong>
                 <p>días de racha</p>
             </article>
             <article class="stat-card" tabindex="0">
-                <span aria-hidden="true">🕘</span>
-                <strong>0h 0m</strong>
+                <span data-icon="clock"></span>
+                <strong data-stat="total-time">0h 0m</strong>
                 <p>tiempo total</p>
             </article>
             <article class="stat-card" tabindex="0">
-                <span aria-hidden="true">🏆</span>
-                <strong>0</strong>
+                <span data-icon="trophy"></span>
+                <strong data-stat="lessons-completed">0</strong>
                 <p>lecciones terminadas</p>
             </article>
         </section>
 
         <section class="continue-card" aria-labelledby="continuar-titulo">
-            <div class="lesson-icon" aria-hidden="true">⏰</div>
+            <div class="lesson-icon" data-icon="clock"></div>
             <div>
-                <p class="eyebrow">▶ Empieza tu aprendizaje B1</p>
+                <p class="eyebrow">Empieza tu aprendizaje B1</p>
                 <h2 id="continuar-titulo">Present Perfect</h2>
                 <p>Experiencias y acciones recientes en inglés.</p>
             </div>
-            <a href="practica.html?lesson=present-perfect" class="round-action" aria-label="Iniciar la lección Present Perfect">›</a>
+            <a href="practica.html?lesson=present-perfect" class="round-action" aria-label="Iniciar la lección Present Perfect" data-icon="chevron-right" data-icon-label="Iniciar"></a>
         </section>
 
         <section aria-labelledby="ruta-titulo">

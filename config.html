@@ -5,17 +5,22 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>LinguaFlow | Configuración</title>
     <meta name="description" content="LinguaFlow, aplicación accesible para aprender inglés nivel B1 con lecciones interactivas.">
+    <link rel="icon" href="/favicon.svg" type="image/svg+xml">
     <link rel="stylesheet" href="/src/css/styles.css">
 </head>
 <body>
     <a href="#contenido-principal" class="skip-link">Saltar al contenido principal</a>
-    <header class="topbar"><a class="brand" href="dashboard.html"><span class="logo" aria-hidden="true">☀️</span><strong>LinguaFlow</strong></a></header>
+    <header class="topbar">
+        <a class="brand" href="dashboard.html" aria-label="LinguaFlow, ir al inicio">
+            <span class="logo" data-icon="logo" data-icon-size="20"></span><strong>LinguaFlow</strong>
+        </a>
+    </header>
     <nav class="main-nav" aria-label="Navegación principal">
-        <a href="dashboard.html">⌂ Inicio</a>
-        <a href="lecciones.html">▣ Lecciones</a>
-        <a href="practica.html">✤ Práctica</a>
-        <a href="progreso.html">▥ Progreso</a>
-        <a href="config.html" class="active" aria-current="page">⚙ Config.</a>
+        <a href="dashboard.html"><span data-icon="home" data-icon-size="18"></span>Inicio</a>
+        <a href="lecciones.html"><span data-icon="book" data-icon-size="18"></span>Lecciones</a>
+        <a href="practica.html"><span data-icon="target" data-icon-size="18"></span>Práctica</a>
+        <a href="progreso.html"><span data-icon="bar-chart" data-icon-size="18"></span>Progreso</a>
+        <a href="config.html" class="active" aria-current="page"><span data-icon="settings" data-icon-size="18"></span>Config.</a>
     </nav>
     <main id="contenido-principal" class="page-container" tabindex="-1">
         <h1>Configuración de accesibilidad</h1>
