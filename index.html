@@ -5,44 +5,34 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>LinguaFlow | Bienvenida</title>
     <meta name="description" content="LinguaFlow, aplicación accesible para aprender inglés nivel B1 con lecciones interactivas.">
+    <link rel="icon" href="/favicon.svg" type="image/svg+xml">
     <link rel="stylesheet" href="/src/css/styles.css">
 </head>
 <body class="onboarding-page">
-    <a href="#contenido-principal" class="skip-link">Saltar al contenido principal</a>
+    <a href="#onboarding-root" class="skip-link">Saltar al contenido principal</a>
 
-    <main id="contenido-principal" class="onboarding-wrapper" tabindex="-1">
-        <section class="onboarding-card" aria-labelledby="titulo-bienvenida">
-            <div class="onboarding-hero purple-card">
-                <div class="hero-icon" aria-hidden="true">⭐</div>
-                <h1 id="titulo-bienvenida">¡Bienvenido/a a LinguaFlow!</h1>
-                <p>Aprende inglés nivel B1 con lecciones interactivas, feedback inmediato y un sistema de progreso motivador.</p>
-            </div>
+    <button type="button" id="onboarding-skip" class="onboarding-skip" aria-label="Saltar la introducción e ir al inicio">Saltar</button>
 
-            <section class="feature-list" aria-label="Beneficios principales">
-                <article class="feature-item" tabindex="0">
-                    <span aria-hidden="true">⚡</span>
-                    <p>Aprende a tu propio ritmo</p>
-                </article>
-                <article class="feature-item" tabindex="0">
-                    <span aria-hidden="true">☆</span>
-                    <p>Gana XP y sube de nivel</p>
-                </article>
-                <article class="feature-item" tabindex="0">
-                    <span aria-hidden="true">▥</span>
-                    <p>Sigue tu progreso</p>
-                </article>
+    <main id="onboarding-root" class="onboarding-wrapper" tabindex="-1">
+        <div id="onboarding-card">
+            <section class="onboarding-card" aria-labelledby="onboarding-hero-title">
+                <div id="onboarding-hero" class="onboarding-hero">
+                    <div class="hero-icon" id="onboarding-hero-icon" aria-hidden="true"></div>
+                    <h1 id="onboarding-hero-title"></h1>
+                    <p id="onboarding-hero-desc"></p>
+                </div>
+                <section class="feature-list" id="onboarding-features" aria-label="Beneficios de este paso"></section>
             </section>
-        </section>
+        </div>
 
-        <nav class="dots" aria-label="Progreso de bienvenida">
-            <span class="dot active" aria-label="Paso 1 de 2"></span>
-            <span class="dot" aria-hidden="true"></span>
-            <span class="dot" aria-hidden="true"></span>
-            <span class="dot" aria-hidden="true"></span>
-            <span class="dot" aria-hidden="true"></span>
-        </nav>
+        <nav class="dots" id="onboarding-dots" aria-label="Progreso de bienvenida"></nav>
 
-        <a href="onboarding2.html" class="primary-button" aria-label="Ir a la siguiente pantalla de bienvenida">Siguiente <span aria-hidden="true">›</span></a>
+        <div class="onboarding-nav">
+            <button type="button" id="onboarding-back" class="secondary-button" hidden>
+                <span aria-hidden="true">‹</span> Atrás
+            </button>
+            <button type="button" id="onboarding-next" class="primary-button"></button>
+        </div>
     </main>
     <script type="module" src="/src/js/app.js"></script>
 </body>

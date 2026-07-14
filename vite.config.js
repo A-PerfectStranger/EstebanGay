@@ -11,7 +11,6 @@ export default defineConfig({
     rollupOptions: {
       input: {
         main: resolve(__dirname, 'index.html'),
-        onboarding2: resolve(__dirname, 'onboarding2.html'),
         dashboard: resolve(__dirname, 'dashboard.html'),
         lecciones: resolve(__dirname, 'lecciones.html'),
         practica: resolve(__dirname, 'practica.html'),
