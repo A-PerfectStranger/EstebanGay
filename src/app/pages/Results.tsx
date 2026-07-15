@@ -85,7 +85,7 @@ export function Results() {
   };
 
   const scoreColor = score >= 80 ? 'text-green-600' : score >= 60 ? 'text-amber-500' : 'text-red-500';
-  const scoreBg = score >= 80 ? 'from-green-400 to-emerald-500' : score >= 60 ? 'from-amber-400 to-orange-500' : 'from-red-400 to-rose-500';
+  const scoreBg = score >= 80 ? 'from-green-700 to-emerald-800' : score >= 60 ? 'from-amber-700 to-orange-800' : 'from-red-700 to-rose-800';
   const scoreRing = score >= 80 ? 'ring-green-300' : score >= 60 ? 'ring-amber-300' : 'ring-red-300';
   const scoreMsg = score === 100 ? '¡Perfecto! 🏆' : score >= 80 ? '¡Excelente! 🎉' : score >= 60 ? '¡Bien hecho! 👍' : 'Sigue practicando 💪';
 
@@ -126,9 +126,9 @@ export function Results() {
             role="img"
             aria-label={`Puntuación: ${score} por ciento de aciertos`}
           >
-            <Trophy className="w-5 h-5 text-white/80 mb-0.5" aria-hidden="true" />
+            <Trophy className="w-5 h-5 text-white mb-0.5" aria-hidden="true" />
             <span className="text-white" aria-hidden="true" style={{ fontWeight: 800, fontSize: '2rem', lineHeight: 1 }}>{score}%</span>
-            <span className="text-white/80" aria-hidden="true" style={{ fontSize: '0.7rem', fontWeight: 500 }}>aciertos</span>
+            <span className="text-white" aria-hidden="true" style={{ fontSize: '0.7rem', fontWeight: 500 }}>aciertos</span>
           </div>
 
           <StarDisplay count={stars} />

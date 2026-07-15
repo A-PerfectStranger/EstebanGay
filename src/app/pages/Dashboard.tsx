@@ -151,7 +151,7 @@ export function Dashboard() {
                 {/* Unit header */}
                 <div className={`bg-gradient-to-r ${unit.gradientFrom} ${unit.gradientTo} rounded-2xl p-4 mb-5 flex items-center justify-between`}>
                   <div>
-                    <p className="text-white/80" style={{ fontSize: '0.7rem', fontWeight: 600 }}>{unit.title} · {unit.level}</p>
+                    <p className="text-white" style={{ fontSize: '0.7rem', fontWeight: 600 }}>{unit.title} · {unit.level}</p>
                     <h3 className="text-white" style={{ fontWeight: 700 }}>{unit.subtitle}</h3>
                   </div>
                   {allCompleted && (
