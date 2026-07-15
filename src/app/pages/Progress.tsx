@@ -85,7 +85,7 @@ export function Progress() {
             </ResponsiveContainer>
             <div className="absolute inset-0 flex flex-col items-center justify-center" aria-hidden="true">
               <span className="text-white" style={{ fontWeight: 800, fontSize: '1.3rem', lineHeight: 1 }}>{overallPercent}%</span>
-              <span className="text-indigo-100" style={{ fontSize: '0.58rem' }}>total</span>
+              <span className="text-indigo-100" style={{ fontSize: '0.7rem' }}>total</span>
             </div>
           </div>
 
@@ -107,7 +107,7 @@ export function Progress() {
             >
               <div className="h-full bg-white rounded-full" style={{ width: `${xpInfo.percent}%` }} />
             </div>
-            <p className="text-indigo-100 mt-1" style={{ fontSize: '0.65rem' }}>{xpInfo.current}/{xpInfo.needed} XP para siguiente nivel</p>
+            <p className="text-indigo-100 mt-1" style={{ fontSize: '0.75rem' }}>{xpInfo.current}/{xpInfo.needed} XP para siguiente nivel</p>
           </div>
         </div>
       </motion.div>
@@ -126,10 +126,12 @@ export function Progress() {
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.1 + i * 0.05 }}
             className="bg-white rounded-2xl p-4 shadow-sm border border-slate-100"
+            role="group"
+            aria-label={`${s.value} ${s.label}`}
           >
             <div className={`w-8 h-8 ${s.bg} rounded-xl flex items-center justify-center mb-2`} aria-hidden="true">{s.icon}</div>
-            <p className="text-slate-800" style={{ fontWeight: 700, fontSize: '1rem' }}>{s.value}</p>
-            <p className="text-slate-600" style={{ fontSize: '0.7rem' }}>{s.label}</p>
+            <p className="text-slate-800" aria-hidden="true" style={{ fontWeight: 700, fontSize: '1rem' }}>{s.value}</p>
+            <p className="text-slate-600" aria-hidden="true" style={{ fontSize: '0.75rem' }}>{s.label}</p>
           </motion.div>
         ))}
       </div>
@@ -147,7 +149,7 @@ export function Progress() {
                 <div className="flex items-center gap-2">
                   <span
                     className={`px-1.5 py-0.5 rounded-md text-xs ${levelColors[u.level] ?? 'bg-slate-100 text-slate-600'}`}
-                    style={{ fontWeight: 700, fontSize: '0.65rem' }}
+                    style={{ fontWeight: 700, fontSize: '0.75rem' }}
                   >
                     {u.level}
                   </span>
@@ -171,7 +173,7 @@ export function Progress() {
                   className={`h-full rounded-full bg-gradient-to-r ${u.gradientFrom} ${u.gradientTo}`}
                 />
               </div>
-              <p className="text-slate-600 mt-1" style={{ fontSize: '0.68rem' }}>{u.pct}% completado</p>
+              <p className="text-slate-600 mt-1" style={{ fontSize: '0.75rem' }}>{u.pct}% completado</p>
             </div>
           ))}
         </div>
@@ -196,7 +198,7 @@ export function Progress() {
                     <p className="text-slate-700 truncate" style={{ fontWeight: 600, fontSize: '0.85rem' }}>{lesson.title}</p>
                     <div className="flex items-center gap-2">
                       <MiniStars count={p?.stars ?? 0} />
-                      <span className="text-slate-600" style={{ fontSize: '0.68rem' }}>{p?.score ?? 0}% · +{p?.xpEarned ?? 0} XP</span>
+                      <span className="text-slate-600" style={{ fontSize: '0.75rem' }}>{p?.score ?? 0}% · +{p?.xpEarned ?? 0} XP</span>
                     </div>
                   </div>
                 </div>

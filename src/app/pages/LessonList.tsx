@@ -185,10 +185,10 @@ export function LessonList() {
                     {/* Info */}
                     <div className="flex-1 min-w-0">
                       <div className="flex items-center gap-2 mb-0.5">
-                        <span className={`text-xs px-1.5 py-0.5 rounded-full ${LEVEL_COLORS[lesson.level]}`} style={{ fontWeight: 600, fontSize: '0.65rem' }}>
+                        <span className={`text-xs px-1.5 py-0.5 rounded-full ${LEVEL_COLORS[lesson.level]}`} style={{ fontWeight: 600, fontSize: '0.75rem' }}>
                           {lesson.level}
                         </span>
-                        <span className="text-slate-600" style={{ fontSize: '0.68rem' }}>{lesson.topic}</span>
+                        <span className="text-slate-600" style={{ fontSize: '0.75rem' }}>{lesson.topic}</span>
                       </div>
                       <p className={`truncate ${locked ? 'text-slate-500' : 'text-slate-800'}`} style={{ fontWeight: 600, fontSize: '0.9rem' }}>
                         {lesson.title}
@@ -197,7 +197,7 @@ export function LessonList() {
                         {completed ? (
                           <>
                             <StarRow count={stars} />
-                            <span className="text-slate-600" style={{ fontSize: '0.68rem' }}>{score}% aciertos · +{progress?.xpEarned ?? 0} XP</span>
+                            <span className="text-slate-600" style={{ fontSize: '0.75rem' }}>{score}% aciertos · +{progress?.xpEarned ?? 0} XP</span>
                           </>
                         ) : inProgress ? (
                           <span className="text-indigo-600" style={{ fontSize: '0.72rem', fontWeight: 600 }}>
