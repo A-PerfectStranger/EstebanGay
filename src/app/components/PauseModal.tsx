@@ -122,7 +122,7 @@ export function PauseModal({ isOpen, lessonTitle, onResume, onExit, onRestart }:
               </div>
 
               {/* Tip */}
-              <p className="text-center text-slate-400 pb-5" style={{ fontSize: '0.73rem' }}>
+              <p className="text-center text-slate-600 pb-5" style={{ fontSize: '0.73rem' }}>
                 Tu progreso se guarda automáticamente
               </p>
             </div>

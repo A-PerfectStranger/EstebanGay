@@ -5,6 +5,7 @@ import { X, Pause, CheckCircle2, XCircle, Lightbulb, ChevronRight, Volume2, Mic 
 import { useApp } from '../context/AppContext';
 import { getLessonById, type ExerciseItem } from '../data/lessons';
 import { PauseModal } from '../components/PauseModal';
+import { usePageTitle } from '../hooks/usePageTitle';
 
 // ─────────────────────────────────────────────
 // Answer normalisation
@@ -50,6 +51,7 @@ function MultipleChoice({
             key={opt}
             onClick={() => pick(opt)}
             disabled={!!selected}
+            lang="en"
             className={`w-full text-left p-4 rounded-2xl border-2 transition-all ${
               isChosenRight || isRevealedCorrect
                 ? 'border-green-400 bg-green-50 text-green-800'
@@ -114,7 +116,7 @@ function FillBlank({
   return (
     <div className="space-y-5">
       {/* Sentence with blank */}
-      <div className="bg-slate-50 rounded-2xl p-4 text-center" style={{ fontSize: '1rem', lineHeight: 1.6, color: '#1e293b', fontWeight: 500 }}>
+      <div className="bg-slate-50 rounded-2xl p-4 text-center" lang="en" style={{ fontSize: '1rem', lineHeight: 1.6, color: '#1e293b', fontWeight: 500 }}>
         {parts[0]}
         <span
           className={`inline-block min-w-[80px] px-3 py-0.5 mx-1 rounded-lg border-2 transition-colors ${
@@ -134,7 +136,7 @@ function FillBlank({
       </div>
 
       {/* Word bank */}
-      <div className="flex flex-wrap gap-2 justify-center">
+      <div className="flex flex-wrap gap-2 justify-center" lang="en">
         {exercise.wordBank!.map(word => (
           <button
             key={word}
@@ -226,7 +228,7 @@ function WordOrder({
         }`}
       >
         {selected.length === 0 && (
-          <span className="text-slate-300 self-center mx-auto" style={{ fontSize: '0.85rem' }}>
+          <span className="text-slate-500 self-center mx-auto" style={{ fontSize: '0.85rem' }}>
             Toca las palabras para ordenarlas
           </span>
         )}
@@ -235,6 +237,8 @@ function WordOrder({
             key={`${word}-${i}`}
             onClick={() => removeWord(i)}
             disabled={submitted}
+            lang="en"
+            aria-label={`Quitar la palabra ${word} de tu respuesta`}
             className={`px-3 py-1.5 rounded-xl border-2 transition-all ${
               submitted
                 ? isCorrect
@@ -253,12 +257,13 @@ function WordOrder({
       <div className="h-px bg-slate-100" />
 
       {/* Word bank */}
-      <div className="flex flex-wrap gap-2">
+      <div className="flex flex-wrap gap-2" lang="en">
         {available.map((word, i) => (
           <button
             key={`${word}-${i}`}
             onClick={() => addWord(word, i)}
             disabled={submitted}
+            aria-label={`Añadir la palabra ${word} a tu respuesta`}
             className={`px-3 py-2 rounded-xl border-2 transition-all ${
               submitted
                 ? 'border-slate-200 bg-slate-100 text-slate-400 opacity-40'
@@ -330,8 +335,10 @@ function Translate({
         onChange={e => !submitted && setValue(e.target.value)}
         onKeyDown={e => { if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); submit(); } }}
         placeholder="Escribe tu respuesta en inglés..."
+        aria-label="Escribe tu respuesta en inglés"
+        lang="en"
         disabled={submitted}
-        className={`w-full rounded-2xl border-2 p-4 resize-none outline-none transition-colors placeholder:text-slate-300 ${
+        className={`w-full rounded-2xl border-2 p-4 resize-none outline-none transition-colors placeholder:text-slate-500 ${
           submitted
             ? isCorrect
               ? 'border-green-400 bg-green-50 text-green-800'
@@ -421,7 +428,7 @@ function Speaking({
     <div className="space-y-4">
       <div className="bg-slate-50 rounded-2xl p-5 text-center">
         <p className="text-slate-800" lang="en" style={{ fontWeight: 700, fontSize: '1.15rem' }}>{exercise.correctAnswer}</p>
-        <p className="text-slate-400 mt-1" style={{ fontSize: '0.78rem' }}>Pronuncia la oración o escríbela si prefieres.</p>
+        <p className="text-slate-600 mt-1" style={{ fontSize: '0.78rem' }}>Pronuncia la oración o escríbela si prefieres.</p>
       </div>
 
       <div className="flex items-center justify-center gap-4">
@@ -531,8 +538,8 @@ function FeedbackPanel({
             </p>
             {!isCorrect && (
               <div className="mt-1 space-y-0.5">
-                <p className="text-red-500" style={{ fontSize: '0.75rem' }}>Tu respuesta: <span style={{ fontWeight: 600 }}>"{userAnswer}"</span></p>
-                <p className="text-green-600" style={{ fontSize: '0.75rem' }}>Respuesta correcta: <span style={{ fontWeight: 600 }}>"{exercise.correctAnswer}"</span></p>
+                <p className="text-red-700" style={{ fontSize: '0.75rem' }}>Tu respuesta: <span lang="en" style={{ fontWeight: 600 }}>"{userAnswer}"</span></p>
+                <p className="text-green-700" style={{ fontSize: '0.75rem' }}>Respuesta correcta: <span lang="en" style={{ fontWeight: 600 }}>"{exercise.correctAnswer}"</span></p>
               </div>
             )}
           </div>
@@ -580,6 +587,7 @@ export function Exercise() {
   const { state, saveProgress, resetLesson } = useApp();
 
   const lesson = lessonId ? getLessonById(lessonId) : null;
+  usePageTitle(lesson ? `${lesson.title} — Ejercicio` : 'Ejercicio');
   const savedProgress = lessonId ? state.lessonProgress[lessonId] : null;
 
   const [exerciseIdx, setExerciseIdx] = useState<number>(() => {
@@ -708,14 +716,15 @@ export function Exercise() {
 
   return (
     <div className="min-h-screen bg-slate-50 flex flex-col">
+      <a href="#exercise-content" className="skip-link">Saltar al ejercicio</a>
       {/* ── TOP BAR ── */}
-      <div className="fixed top-0 left-0 right-0 z-20 bg-white border-b border-slate-100 shadow-sm">
+      <header className="fixed top-0 left-0 right-0 z-20 bg-white border-b border-slate-100 shadow-sm">
         <div className="max-w-2xl mx-auto px-4 h-14 flex items-center gap-3">
           {/* Close */}
           <button
             onClick={handleExit}
             aria-label="Salir de la lección y volver a lecciones"
-            className="w-8 h-8 rounded-xl flex items-center justify-center text-slate-400 hover:text-slate-600 hover:bg-slate-100 transition-colors"
+            className="w-8 h-8 rounded-xl flex items-center justify-center text-slate-600 hover:text-slate-800 hover:bg-slate-100 transition-colors"
           >
             <X className="w-5 h-5" aria-hidden="true" />
           </button>
@@ -742,7 +751,7 @@ export function Exercise() {
           <button
             onClick={() => setIsPaused(true)}
             aria-label="Pausar lección"
-            className="w-8 h-8 rounded-xl flex items-center justify-center text-slate-400 hover:text-slate-600 hover:bg-slate-100 transition-colors"
+            className="w-8 h-8 rounded-xl flex items-center justify-center text-slate-600 hover:text-slate-800 hover:bg-slate-100 transition-colors"
           >
             <Pause className="w-4 h-4" aria-hidden="true" />
           </button>
@@ -750,7 +759,7 @@ export function Exercise() {
 
         {/* Exercise counter */}
         <div className="pb-2 px-4 flex justify-center">
-          <div className="flex items-center gap-1.5">
+          <div className="flex items-center gap-1.5" aria-hidden="true">
             {exercises.map((_, i) => (
               <div
                 key={i}
@@ -765,10 +774,10 @@ export function Exercise() {
             ))}
           </div>
         </div>
-      </div>
+      </header>
 
       {/* ── EXERCISE AREA ── */}
-      <div className="flex-1 pt-[5.5rem] pb-6">
+      <main id="exercise-content" tabIndex={-1} className="flex-1 pt-[5.5rem] pb-6">
         <div className="max-w-2xl mx-auto px-4 py-4">
           <AnimatePresence mode="wait">
             <motion.div
@@ -780,15 +789,15 @@ export function Exercise() {
             >
               {/* Exercise type tag */}
               <div className="mb-3">
-                <span className="text-slate-400" style={{ fontSize: '0.72rem', fontWeight: 600 }}>
+                <span className="text-slate-600" style={{ fontSize: '0.72rem', fontWeight: 600 }}>
                   {TYPE_LABELS[current.type]} · {exerciseIdx + 1}/{exercises.length}
                 </span>
               </div>
 
               {/* Instruction */}
-              <h2 className="text-slate-800 mb-1" style={{ fontWeight: 700, fontSize: '1.1rem' }}>
+              <h1 className="text-slate-800 mb-1" style={{ fontWeight: 700, fontSize: '1.1rem' }}>
                 {current.instruction}
-              </h2>
+              </h1>
 
               {/* Question (for MC & translate show it; fill-blank/word-order show sentence) */}
               {current.question && current.type !== 'translate' && (
@@ -820,7 +829,7 @@ export function Exercise() {
             </motion.div>
           </AnimatePresence>
         </div>
-      </div>
+      </main>
 
       {/* ── FEEDBACK PANEL ── */}
       <AnimatePresence>

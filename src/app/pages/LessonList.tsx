@@ -4,31 +4,34 @@ import { motion } from 'motion/react';
 import { Lock, RotateCcw, Play, CheckCircle2, Filter } from 'lucide-react';
 import { useApp } from '../context/AppContext';
 import { units, type Level } from '../data/lessons';
+import { usePageTitle } from '../hooks/usePageTitle';
 
 type TopicFilter = 'all' | 'Gramática' | 'Vocabulario' | 'Conversación';
 type LevelFilter = 'all' | Level;
 
 function StarRow({ count, size = 'sm' }: { count: number; size?: 'sm' | 'md' }) {
   return (
-    <div className="flex gap-0.5">
+    <div className="flex gap-0.5" role="img" aria-label={`${count} de 3 estrellas`}>
       {[1, 2, 3].map(i => (
-        <span key={i} className={`${size === 'sm' ? 'text-xs' : 'text-sm'} ${i <= count ? 'text-amber-400' : 'text-slate-200'}`}>★</span>
+        <span key={i} aria-hidden="true" className={`${size === 'sm' ? 'text-xs' : 'text-sm'} ${i <= count ? 'text-amber-400' : 'text-slate-200'}`}>★</span>
       ))}
     </div>
   );
 }
 
 const DIFFICULTY_LABEL: Record<string, string> = {
-  A1: '⭐ Básico', A2: '⭐⭐ Elemental', B1: '⭐⭐⭐ Intermedio', B2: '⭐⭐⭐⭐ Avanzado', C1: '⭐⭐⭐⭐⭐ Experto',
+  A1: '⭐ Básico', A2: '⭐⭐ Elemental', B1: '⭐⭐⭐ Intermedio', B2: '⭐⭐⭐⭐ Intermedio alto', C1: '⭐⭐⭐⭐⭐ Avanzado', C2: '🏆 Maestría',
 };
 const LEVEL_COLORS: Record<string, string> = {
   A1: 'bg-emerald-100 text-emerald-700', A2: 'bg-orange-100 text-orange-700',
-  B1: 'bg-purple-100 text-purple-700', B2: 'bg-blue-100 text-blue-700', C1: 'bg-rose-100 text-rose-700',
+  B1: 'bg-purple-100 text-purple-700', B2: 'bg-blue-100 text-blue-700',
+  C1: 'bg-rose-100 text-rose-700', C2: 'bg-slate-200 text-slate-800',
 };
 
 export function LessonList() {
   const { state, isLessonLocked, resetLesson } = useApp();
   const navigate = useNavigate();
+  usePageTitle('Lecciones');
   const [levelFilter, setLevelFilter] = useState<LevelFilter>('all');
   const [topicFilter, setTopicFilter] = useState<TopicFilter>('all');
   const [showFilters, setShowFilters] = useState(false);
@@ -53,14 +56,16 @@ export function LessonList() {
       <div className="flex items-center justify-between">
         <div>
           <h1 className="text-slate-800" style={{ fontWeight: 700, fontSize: '1.2rem' }}>Lecciones</h1>
-          <p className="text-slate-400" style={{ fontSize: '0.78rem' }}>{allLessons.length} lecciones disponibles</p>
+          <p className="text-slate-600" style={{ fontSize: '0.78rem' }}>{allLessons.length} lecciones disponibles · niveles A1 a C2</p>
         </div>
         <button
           onClick={() => setShowFilters(s => !s)}
+          aria-expanded={showFilters}
+          aria-controls="lesson-filters"
           className={`flex items-center gap-1.5 px-3 py-2 rounded-xl text-sm transition-colors ${showFilters ? 'bg-indigo-100 text-indigo-600' : 'bg-slate-100 text-slate-600 hover:bg-slate-200'}`}
           style={{ fontWeight: 500, fontSize: '0.8rem' }}
         >
-          <Filter className="w-3.5 h-3.5" />
+          <Filter className="w-3.5 h-3.5" aria-hidden="true" />
           Filtros
         </button>
       </div>
@@ -68,47 +73,50 @@ export function LessonList() {
       {/* Filters */}
       {showFilters && (
         <motion.div
+          id="lesson-filters"
           initial={{ opacity: 0, height: 0 }}
           animate={{ opacity: 1, height: 'auto' }}
           exit={{ opacity: 0, height: 0 }}
           className="bg-white rounded-2xl p-4 shadow-sm border border-slate-100 space-y-3"
         >
-          <div>
-            <p className="text-slate-500 mb-2" style={{ fontSize: '0.72rem', fontWeight: 600 }}>NIVEL</p>
+          <fieldset>
+            <legend className="text-slate-600 mb-2" style={{ fontSize: '0.72rem', fontWeight: 600 }}>NIVEL</legend>
             <div className="flex flex-wrap gap-2">
-              {(['all', 'A1', 'A2', 'B1', 'B2', 'C1'] as const).map(l => (
+              {(['all', 'A1', 'A2', 'B1', 'B2', 'C1', 'C2'] as const).map(l => (
                 <button
                   key={l}
                   onClick={() => setLevelFilter(l)}
-                  className={`px-3 py-1 rounded-full transition-colors ${levelFilter === l ? 'bg-indigo-600 text-white' : 'bg-slate-100 text-slate-600 hover:bg-slate-200'}`}
+                  aria-pressed={levelFilter === l}
+                  className={`px-3 py-1.5 rounded-full transition-colors ${levelFilter === l ? 'bg-indigo-600 text-white' : 'bg-slate-100 text-slate-700 hover:bg-slate-200'}`}
                   style={{ fontSize: '0.75rem', fontWeight: 600 }}
                 >
                   {l === 'all' ? 'Todos' : l}
                 </button>
               ))}
             </div>
-          </div>
-          <div>
-            <p className="text-slate-500 mb-2" style={{ fontSize: '0.72rem', fontWeight: 600 }}>TEMA</p>
+          </fieldset>
+          <fieldset>
+            <legend className="text-slate-600 mb-2" style={{ fontSize: '0.72rem', fontWeight: 600 }}>TEMA</legend>
             <div className="flex flex-wrap gap-2">
               {(['all', 'Gramática', 'Vocabulario', 'Conversación'] as const).map(t => (
                 <button
                   key={t}
                   onClick={() => setTopicFilter(t)}
-                  className={`px-3 py-1 rounded-full transition-colors ${topicFilter === t ? 'bg-indigo-600 text-white' : 'bg-slate-100 text-slate-600 hover:bg-slate-200'}`}
+                  aria-pressed={topicFilter === t}
+                  className={`px-3 py-1.5 rounded-full transition-colors ${topicFilter === t ? 'bg-indigo-600 text-white' : 'bg-slate-100 text-slate-700 hover:bg-slate-200'}`}
                   style={{ fontSize: '0.75rem', fontWeight: 600 }}
                 >
                   {t === 'all' ? 'Todos' : t}
                 </button>
               ))}
             </div>
-          </div>
+          </fieldset>
         </motion.div>
       )}
 
       {/* Results count */}
       {(levelFilter !== 'all' || topicFilter !== 'all') && (
-        <p className="text-slate-500" style={{ fontSize: '0.78rem' }}>
+        <p className="text-slate-600" role="status" aria-live="polite" style={{ fontSize: '0.78rem' }}>
           {filtered.length} lección{filtered.length !== 1 ? 'es' : ''} encontrada{filtered.length !== 1 ? 's' : ''}
         </p>
       )}
@@ -116,7 +124,7 @@ export function LessonList() {
       {/* Lessons grid */}
       <div className="space-y-3">
         {filtered.length === 0 ? (
-          <div className="text-center py-12 text-slate-400">
+          <div className="text-center py-12 text-slate-600">
             <p className="text-3xl mb-3">🔍</p>
             <p style={{ fontWeight: 500 }}>No se encontraron lecciones</p>
             <button
@@ -146,7 +154,7 @@ export function LessonList() {
                 <div
                   className={`bg-white rounded-2xl shadow-sm border transition-all overflow-hidden ${
                     locked
-                      ? 'border-slate-100 opacity-60'
+                      ? 'border-slate-200 bg-slate-50'
                       : 'border-slate-100 hover:border-indigo-200 hover:shadow-md'
                   }`}
                 >
@@ -170,8 +178,8 @@ export function LessonList() {
 
                   <div className="p-4 flex items-center gap-3">
                     {/* Emoji icon */}
-                    <div className={`w-12 h-12 ${locked ? 'bg-slate-200' : lesson.colorClass} rounded-2xl flex items-center justify-center text-xl flex-shrink-0 shadow-sm`}>
-                      {locked ? <Lock className="w-5 h-5 text-slate-400" /> : lesson.emoji}
+                    <div className={`w-12 h-12 ${locked ? 'bg-slate-200' : lesson.colorClass} rounded-2xl flex items-center justify-center text-xl flex-shrink-0 shadow-sm`} aria-hidden="true">
+                      {locked ? <Lock className="w-5 h-5 text-slate-500" /> : lesson.emoji}
                     </div>
 
                     {/* Info */}
@@ -180,25 +188,25 @@ export function LessonList() {
                         <span className={`text-xs px-1.5 py-0.5 rounded-full ${LEVEL_COLORS[lesson.level]}`} style={{ fontWeight: 600, fontSize: '0.65rem' }}>
                           {lesson.level}
                         </span>
-                        <span className="text-slate-400" style={{ fontSize: '0.68rem' }}>{lesson.topic}</span>
+                        <span className="text-slate-600" style={{ fontSize: '0.68rem' }}>{lesson.topic}</span>
                       </div>
-                      <p className={`truncate ${locked ? 'text-slate-400' : 'text-slate-800'}`} style={{ fontWeight: 600, fontSize: '0.9rem' }}>
+                      <p className={`truncate ${locked ? 'text-slate-500' : 'text-slate-800'}`} style={{ fontWeight: 600, fontSize: '0.9rem' }}>
                         {lesson.title}
                       </p>
                       <div className="flex items-center gap-2 mt-0.5">
                         {completed ? (
                           <>
                             <StarRow count={stars} />
-                            <span className="text-slate-400" style={{ fontSize: '0.68rem' }}>{score}% aciertos · +{progress?.xpEarned ?? 0} XP</span>
+                            <span className="text-slate-600" style={{ fontSize: '0.68rem' }}>{score}% aciertos · +{progress?.xpEarned ?? 0} XP</span>
                           </>
                         ) : inProgress ? (
-                          <span className="text-indigo-500" style={{ fontSize: '0.72rem', fontWeight: 600 }}>
+                          <span className="text-indigo-600" style={{ fontSize: '0.72rem', fontWeight: 600 }}>
                             {Math.round(((progress?.exerciseIndex ?? 0) / lesson.exercises.length) * 100)}% completado
                           </span>
                         ) : locked ? (
-                          <span className="text-slate-400" style={{ fontSize: '0.72rem' }}>Bloqueado</span>
+                          <span className="text-slate-500" style={{ fontSize: '0.72rem' }}>Bloqueado — completa la lección anterior</span>
                         ) : (
-                          <span className="text-slate-400" style={{ fontSize: '0.72rem' }}>{lesson.exercises.length} ejercicios · +{lesson.xpReward} XP</span>
+                          <span className="text-slate-600" style={{ fontSize: '0.72rem' }}>{lesson.exercises.length} ejercicios · +{lesson.xpReward} XP</span>
                         )}
                       </div>
                     </div>
@@ -212,14 +220,16 @@ export function LessonList() {
                             <div className="flex gap-1.5">
                               <button
                                 onClick={(e) => handleReset(e, lesson.id)}
-                                className="text-red-500 hover:text-red-700 bg-red-50 rounded-lg px-2 py-1 transition-colors"
+                                aria-label={`Confirmar reinicio de la lección ${lesson.title}`}
+                                className="text-red-600 hover:text-red-700 bg-red-50 rounded-lg px-2 py-1 transition-colors"
                                 style={{ fontSize: '0.7rem', fontWeight: 600 }}
                               >
                                 ¿Seguro?
                               </button>
                               <button
                                 onClick={() => setResetting(null)}
-                                className="text-slate-400 hover:text-slate-600 bg-slate-50 rounded-lg px-2 py-1 transition-colors"
+                                aria-label={`Cancelar reinicio de la lección ${lesson.title}`}
+                                className="text-slate-500 hover:text-slate-700 bg-slate-50 rounded-lg px-2 py-1 transition-colors"
                                 style={{ fontSize: '0.7rem', fontWeight: 600 }}
                               >
                                 No
@@ -228,9 +238,10 @@ export function LessonList() {
                           ) : (
                             <button
                               onClick={(e) => { e.stopPropagation(); setResetting(lesson.id); }}
-                              className="w-8 h-8 flex items-center justify-center rounded-xl text-slate-300 hover:text-slate-500 hover:bg-slate-100 transition-colors"
+                              aria-label={`Reiniciar progreso de la lección ${lesson.title}`}
+                              className="w-8 h-8 flex items-center justify-center rounded-xl text-slate-500 hover:text-slate-700 hover:bg-slate-100 transition-colors"
                             >
-                              <RotateCcw className="w-3.5 h-3.5" />
+                              <RotateCcw className="w-3.5 h-3.5" aria-hidden="true" />
                             </button>
                           )}
                         </>
@@ -240,6 +251,7 @@ export function LessonList() {
                       {!locked && resetting !== lesson.id && (
                         <button
                           onClick={() => navigate(`/exercise/${lesson.id}`)}
+                          aria-label={`${completed ? 'Repasar' : inProgress ? 'Continuar' : 'Iniciar'} lección ${lesson.title}, nivel ${lesson.level}`}
                           className={`flex items-center gap-1.5 px-3 py-2 rounded-xl transition-colors ${
                             completed
                               ? 'bg-slate-100 text-slate-600 hover:bg-slate-200'
@@ -250,11 +262,11 @@ export function LessonList() {
                           style={{ fontWeight: 600, fontSize: '0.78rem' }}
                         >
                           {completed ? (
-                            <><RotateCcw className="w-3.5 h-3.5" />Repasar</>
+                            <><RotateCcw className="w-3.5 h-3.5" aria-hidden="true" />Repasar</>
                           ) : inProgress ? (
-                            <><Play className="w-3.5 h-3.5 fill-indigo-500" />Continuar</>
+                            <><Play className="w-3.5 h-3.5 fill-indigo-500" aria-hidden="true" />Continuar</>
                           ) : (
-                            <><Play className="w-3.5 h-3.5 fill-white" />Iniciar</>
+                            <><Play className="w-3.5 h-3.5 fill-white" aria-hidden="true" />Iniciar</>
                           )}
                         </button>
                       )}

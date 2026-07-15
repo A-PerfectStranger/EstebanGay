@@ -3,12 +3,13 @@ import { BarChart2, Flame, Clock, Trophy, Target, TrendingUp, Star, Zap } from '
 import { RadialBarChart, RadialBar, ResponsiveContainer, Tooltip } from 'recharts';
 import { useApp, getLevel, getXpProgress } from '../context/AppContext';
 import { units } from '../data/lessons';
+import { usePageTitle } from '../hooks/usePageTitle';
 
 function MiniStars({ count }: { count: number }) {
   return (
-    <span>
+    <span role="img" aria-label={`${count} de 3 estrellas`}>
       {[1,2,3].map(i => (
-        <span key={i} className={`text-xs ${i <= count ? 'text-amber-400' : 'text-slate-200'}`}>★</span>
+        <span key={i} aria-hidden="true" className={`text-xs ${i <= count ? 'text-amber-400' : 'text-slate-200'}`}>★</span>
       ))}
     </span>
   );
@@ -16,6 +17,7 @@ function MiniStars({ count }: { count: number }) {
 
 export function Progress() {
   const { state } = useApp();
+  usePageTitle('Mi progreso');
   const level = getLevel(state.user.xp);
   const xpInfo = getXpProgress(state.user.xp);
 
@@ -51,9 +53,12 @@ export function Progress() {
   const recent = completedLessons.slice(-5).reverse();
 
   const levelColors: Record<string, string> = {
-    A1: 'text-emerald-600 bg-emerald-100',
-    A2: 'text-orange-600 bg-orange-100',
-    B1: 'text-purple-600 bg-purple-100',
+    A1: 'text-emerald-700 bg-emerald-100',
+    A2: 'text-orange-700 bg-orange-100',
+    B1: 'text-purple-700 bg-purple-100',
+    B2: 'text-blue-700 bg-blue-100',
+    C1: 'text-rose-700 bg-rose-100',
+    C2: 'text-slate-800 bg-slate-200',
   };
 
   return (
@@ -61,26 +66,26 @@ export function Progress() {
       {/* Header */}
       <div>
         <h1 className="text-slate-800" style={{ fontWeight: 700, fontSize: '1.2rem' }}>Mi Progreso</h1>
-        <p className="text-slate-400" style={{ fontSize: '0.78rem' }}>Sigue tu evolución en el aprendizaje</p>
+        <p className="text-slate-600" style={{ fontSize: '0.78rem' }}>Sigue tu evolución en el aprendizaje</p>
       </div>
 
       {/* Overall progress ring + level */}
       <motion.div
         initial={{ opacity: 0, scale: 0.95 }}
         animate={{ opacity: 1, scale: 1 }}
-        className="bg-gradient-to-br from-indigo-500 to-purple-600 rounded-3xl p-5 text-white"
+        className="bg-gradient-to-br from-indigo-600 to-purple-700 rounded-3xl p-5 text-white"
       >
         <div className="flex items-center gap-5">
           {/* Radial chart */}
-          <div className="relative w-24 h-24 flex-shrink-0">
+          <div className="relative w-24 h-24 flex-shrink-0" role="img" aria-label={`Progreso total del curso: ${overallPercent} por ciento`}>
             <ResponsiveContainer width="100%" height="100%">
               <RadialBarChart cx="50%" cy="50%" innerRadius="60%" outerRadius="80%" startAngle={90} endAngle={-270} data={radialData}>
                 <RadialBar dataKey="value" background={{ fill: 'rgba(255,255,255,0.2)' }} cornerRadius={4} />
               </RadialBarChart>
             </ResponsiveContainer>
-            <div className="absolute inset-0 flex flex-col items-center justify-center">
+            <div className="absolute inset-0 flex flex-col items-center justify-center" aria-hidden="true">
               <span className="text-white" style={{ fontWeight: 800, fontSize: '1.3rem', lineHeight: 1 }}>{overallPercent}%</span>
-              <span className="text-indigo-200" style={{ fontSize: '0.58rem' }}>total</span>
+              <span className="text-indigo-100" style={{ fontSize: '0.58rem' }}>total</span>
             </div>
           </div>
 
@@ -89,12 +94,20 @@ export function Progress() {
               <span className="bg-white/20 text-white px-2 py-0.5 rounded-full" style={{ fontWeight: 700, fontSize: '0.72rem' }}>Nivel {level}</span>
             </div>
             <p className="text-white mb-1" style={{ fontWeight: 700, fontSize: '1.1rem' }}>{state.user.name}</p>
-            <p className="text-indigo-200" style={{ fontSize: '0.78rem' }}>{state.user.xp.toLocaleString()} XP · {completedLessons.length}/{allLessons.length} lecciones</p>
+            <p className="text-indigo-100" style={{ fontSize: '0.78rem' }}>{state.user.xp.toLocaleString()} XP · {completedLessons.length}/{allLessons.length} lecciones</p>
             {/* XP bar */}
-            <div className="mt-2 h-1.5 bg-white/20 rounded-full overflow-hidden">
+            <div
+              className="mt-2 h-1.5 bg-white/20 rounded-full overflow-hidden"
+              role="progressbar"
+              aria-label="Progreso hacia el siguiente nivel"
+              aria-valuenow={xpInfo.percent}
+              aria-valuemin={0}
+              aria-valuemax={100}
+              aria-valuetext={`${xpInfo.current} de ${xpInfo.needed} XP`}
+            >
               <div className="h-full bg-white rounded-full" style={{ width: `${xpInfo.percent}%` }} />
             </div>
-            <p className="text-indigo-200 mt-1" style={{ fontSize: '0.65rem' }}>{xpInfo.current}/{xpInfo.needed} XP para siguiente nivel</p>
+            <p className="text-indigo-100 mt-1" style={{ fontSize: '0.65rem' }}>{xpInfo.current}/{xpInfo.needed} XP para siguiente nivel</p>
           </div>
         </div>
       </motion.div>
@@ -114,9 +127,9 @@ export function Progress() {
             transition={{ delay: 0.1 + i * 0.05 }}
             className="bg-white rounded-2xl p-4 shadow-sm border border-slate-100"
           >
-            <div className={`w-8 h-8 ${s.bg} rounded-xl flex items-center justify-center mb-2`}>{s.icon}</div>
+            <div className={`w-8 h-8 ${s.bg} rounded-xl flex items-center justify-center mb-2`} aria-hidden="true">{s.icon}</div>
             <p className="text-slate-800" style={{ fontWeight: 700, fontSize: '1rem' }}>{s.value}</p>
-            <p className="text-slate-400" style={{ fontSize: '0.7rem' }}>{s.label}</p>
+            <p className="text-slate-600" style={{ fontSize: '0.7rem' }}>{s.label}</p>
           </motion.div>
         ))}
       </div>
@@ -142,7 +155,15 @@ export function Progress() {
                 </div>
                 <span className="text-slate-500" style={{ fontSize: '0.75rem', fontWeight: 600 }}>{u.done}/{u.total}</span>
               </div>
-              <div className="h-2 bg-slate-100 rounded-full overflow-hidden">
+              <div
+                className="h-2 bg-slate-100 rounded-full overflow-hidden"
+                role="progressbar"
+                aria-label={`Progreso de ${u.subtitle}`}
+                aria-valuenow={u.pct}
+                aria-valuemin={0}
+                aria-valuemax={100}
+                aria-valuetext={`${u.done} de ${u.total} lecciones completadas`}
+              >
                 <motion.div
                   initial={{ width: 0 }}
                   animate={{ width: `${u.pct}%` }}
@@ -150,7 +171,7 @@ export function Progress() {
                   className={`h-full rounded-full bg-gradient-to-r ${u.gradientFrom} ${u.gradientTo}`}
                 />
               </div>
-              <p className="text-slate-400 mt-1" style={{ fontSize: '0.68rem' }}>{u.pct}% completado</p>
+              <p className="text-slate-600 mt-1" style={{ fontSize: '0.68rem' }}>{u.pct}% completado</p>
             </div>
           ))}
         </div>
@@ -168,14 +189,14 @@ export function Progress() {
               const p = state.lessonProgress[lesson.id];
               return (
                 <div key={lesson.id} className="px-4 py-3 flex items-center gap-3">
-                  <div className={`w-9 h-9 ${lesson.colorClass} rounded-xl flex items-center justify-center text-base flex-shrink-0`}>
+                  <div className={`w-9 h-9 ${lesson.colorClass} rounded-xl flex items-center justify-center text-base flex-shrink-0`} aria-hidden="true">
                     {lesson.emoji}
                   </div>
                   <div className="flex-1 min-w-0">
                     <p className="text-slate-700 truncate" style={{ fontWeight: 600, fontSize: '0.85rem' }}>{lesson.title}</p>
                     <div className="flex items-center gap-2">
                       <MiniStars count={p?.stars ?? 0} />
-                      <span className="text-slate-400" style={{ fontSize: '0.68rem' }}>{p?.score ?? 0}% · +{p?.xpEarned ?? 0} XP</span>
+                      <span className="text-slate-600" style={{ fontSize: '0.68rem' }}>{p?.score ?? 0}% · +{p?.xpEarned ?? 0} XP</span>
                     </div>
                   </div>
                 </div>
@@ -186,7 +207,7 @@ export function Progress() {
       )}
 
       {completedLessons.length === 0 && (
-        <div className="text-center py-8 text-slate-400">
+        <div className="text-center py-8 text-slate-600">
           <BarChart2 className="w-10 h-10 mx-auto mb-3 opacity-30" />
           <p style={{ fontWeight: 500 }}>Completa tu primera lección</p>
           <p className="mt-1" style={{ fontSize: '0.82rem' }}>para ver tus estadísticas aquí</p>

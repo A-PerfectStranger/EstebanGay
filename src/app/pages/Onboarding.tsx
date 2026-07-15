@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router';
 import { motion, AnimatePresence } from 'motion/react';
 import { ChevronRight, ChevronLeft, Zap, Star, MessageSquare, BarChart2, CheckCircle2 } from 'lucide-react';
 import { useApp } from '../context/AppContext';
+import { usePageTitle } from '../hooks/usePageTitle';
 
 const slides = [
   {
@@ -42,10 +43,10 @@ const slides = [
   {
     icon: '🗺️',
     title: 'Tu ruta de aprendizaje',
-    description: 'Sigue una ruta estructurada desde A1 hasta C1, desbloqueando niveles y contenido a medida que avanzas.',
+    description: 'Sigue una ruta estructurada desde A1 hasta C2, desbloqueando niveles y contenido a medida que avanzas.',
     color: 'from-pink-500 to-rose-600',
     features: [
-      { icon: <Zap className="w-4 h-4" />, text: 'Niveles A1 → C1' },
+      { icon: <Zap className="w-4 h-4" />, text: 'Niveles A1 → C2' },
       { icon: <Star className="w-4 h-4" />, text: 'Gana 1–3 estrellas por lección' },
       { icon: <BarChart2 className="w-4 h-4" />, text: 'Racha de días de estudio' },
     ],
@@ -67,6 +68,7 @@ export function Onboarding() {
   const [current, setCurrent] = useState(0);
   const navigate = useNavigate();
   const { setOnboardingCompleted } = useApp();
+  usePageTitle('Bienvenida');
 
   const finish = () => {
     setOnboardingCompleted();
@@ -88,7 +90,7 @@ export function Onboarding() {
       <button
         onClick={finish}
         aria-label="Saltar la introducción e ir al inicio"
-        className="fixed top-4 right-4 text-slate-400 hover:text-slate-600 transition-colors"
+        className="fixed top-4 right-4 text-slate-600 hover:text-slate-800 transition-colors"
         style={{ fontSize: '0.85rem', fontWeight: 500 }}
       >
         Saltar
@@ -137,10 +139,11 @@ export function Onboarding() {
               aria-selected={i === current}
               aria-current={i === current ? 'step' : undefined}
               aria-label={`Ir al paso ${i + 1} de ${slides.length}: ${s.title}`}
+              className="p-2 flex items-center justify-center"
             >
               <div
                 className={`rounded-full transition-all duration-300 ${
-                  i === current ? 'w-6 h-2.5 bg-indigo-500' : 'w-2.5 h-2.5 bg-slate-200'
+                  i === current ? 'w-6 h-2.5 bg-indigo-500' : 'w-2.5 h-2.5 bg-slate-400'
                 }`}
               />
             </button>

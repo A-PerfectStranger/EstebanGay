@@ -2,9 +2,11 @@ import { useState } from 'react';
 import { motion } from 'motion/react';
 import { User, Volume2, Bell, Contrast, RotateCcw, ChevronRight, Edit2, Check, AlertTriangle } from 'lucide-react';
 import { useApp, getLevel, getXpProgress } from '../context/AppContext';
+import { usePageTitle } from '../hooks/usePageTitle';
 
 export function Profile() {
   const { state, updateSettings, resetAllProgress, updateUserName } = useApp();
+  usePageTitle('Perfil y configuración');
   const [editingName, setEditingName] = useState(false);
   const [nameVal, setNameVal] = useState(state.user.name);
   const [showResetConfirm, setShowResetConfirm] = useState(false);
@@ -26,17 +28,17 @@ export function Profile() {
       {/* Header */}
       <div>
         <h1 className="text-slate-800" style={{ fontWeight: 700, fontSize: '1.2rem' }}>Perfil & Configuración</h1>
-        <p className="text-slate-400" style={{ fontSize: '0.78rem' }}>Gestiona tu aprendizaje</p>
+        <p className="text-slate-600" style={{ fontSize: '0.78rem' }}>Gestiona tu aprendizaje</p>
       </div>
 
       {/* Profile card */}
       <motion.div
         initial={{ opacity: 0, y: 10 }}
         animate={{ opacity: 1, y: 0 }}
-        className="bg-gradient-to-br from-indigo-500 to-purple-600 rounded-3xl p-5 text-white"
+        className="bg-gradient-to-br from-indigo-600 to-purple-700 rounded-3xl p-5 text-white"
       >
         <div className="flex items-center gap-4 mb-4">
-          <div className="w-14 h-14 bg-white/20 rounded-2xl flex items-center justify-center">
+          <div className="w-14 h-14 bg-white/20 rounded-2xl flex items-center justify-center" aria-hidden="true">
             <User className="w-7 h-7 text-white" />
           </div>
           <div className="flex-1">
@@ -46,12 +48,13 @@ export function Profile() {
                   value={nameVal}
                   onChange={e => setNameVal(e.target.value)}
                   onKeyDown={e => { if (e.key === 'Enter') saveName(); if (e.key === 'Escape') setEditingName(false); }}
+                  aria-label="Editar tu nombre"
                   className="bg-white/20 rounded-xl px-3 py-1.5 text-white placeholder-white/50 outline-none border border-white/30 focus:border-white"
                   style={{ fontWeight: 600, fontSize: '0.95rem', width: '150px' }}
                   autoFocus
                 />
-                <button onClick={saveName} className="w-7 h-7 bg-white/20 rounded-lg flex items-center justify-center hover:bg-white/30 transition-colors">
-                  <Check className="w-3.5 h-3.5 text-white" />
+                <button onClick={saveName} aria-label="Guardar nombre" className="w-7 h-7 bg-white/20 rounded-lg flex items-center justify-center hover:bg-white/30 transition-colors">
+                  <Check className="w-3.5 h-3.5 text-white" aria-hidden="true" />
                 </button>
               </div>
             ) : (
@@ -59,13 +62,14 @@ export function Profile() {
                 <p className="text-white" style={{ fontWeight: 700, fontSize: '1.1rem' }}>{state.user.name}</p>
                 <button
                   onClick={() => { setNameVal(state.user.name); setEditingName(true); }}
+                  aria-label="Editar mi nombre"
                   className="w-6 h-6 bg-white/20 rounded-md flex items-center justify-center hover:bg-white/30 transition-colors"
                 >
-                  <Edit2 className="w-3 h-3 text-white" />
+                  <Edit2 className="w-3 h-3 text-white" aria-hidden="true" />
                 </button>
               </div>
             )}
-            <p className="text-indigo-200" style={{ fontSize: '0.78rem' }}>Nivel {level} · {state.user.xp.toLocaleString()} XP total</p>
+            <p className="text-indigo-100" style={{ fontSize: '0.78rem' }}>Nivel {level} · {state.user.xp.toLocaleString()} XP total</p>
           </div>
         </div>
 
@@ -73,9 +77,17 @@ export function Profile() {
         <div>
           <div className="flex justify-between mb-1">
             <span style={{ fontSize: '0.72rem', fontWeight: 600 }}>Progreso al siguiente nivel</span>
-            <span style={{ fontSize: '0.72rem' }} className="text-indigo-200">{xpInfo.current}/{xpInfo.needed} XP</span>
+            <span style={{ fontSize: '0.72rem' }} className="text-indigo-100">{xpInfo.current}/{xpInfo.needed} XP</span>
           </div>
-          <div className="h-2.5 bg-white/20 rounded-full overflow-hidden">
+          <div
+            className="h-2.5 bg-white/20 rounded-full overflow-hidden"
+            role="progressbar"
+            aria-label="Progreso al siguiente nivel"
+            aria-valuenow={xpInfo.percent}
+            aria-valuemin={0}
+            aria-valuemax={100}
+            aria-valuetext={`${xpInfo.current} de ${xpInfo.needed} XP`}
+          >
             <div className="h-full bg-white rounded-full transition-all" style={{ width: `${xpInfo.percent}%` }} />
           </div>
         </div>
@@ -90,9 +102,9 @@ export function Profile() {
           { label: 'Estrellas', value: `${totalStars} ganadas`, emoji: '⭐', color: 'bg-amber-50 border-amber-100' },
         ].map(item => (
           <div key={item.label} className={`${item.color} border rounded-2xl p-3.5`}>
-            <span className="text-xl">{item.emoji}</span>
+            <span className="text-xl" aria-hidden="true">{item.emoji}</span>
             <p className="text-slate-800 mt-1" style={{ fontWeight: 700, fontSize: '0.95rem' }}>{item.value}</p>
-            <p className="text-slate-400" style={{ fontSize: '0.7rem' }}>{item.label}</p>
+            <p className="text-slate-600" style={{ fontSize: '0.7rem' }}>{item.label}</p>
           </div>
         ))}
       </div>
@@ -111,7 +123,7 @@ export function Profile() {
             </div>
             <div>
               <p className="text-slate-700" style={{ fontWeight: 500, fontSize: '0.875rem' }}>Sonido</p>
-              <p className="text-slate-400" style={{ fontSize: '0.72rem' }}>Efectos de audio</p>
+              <p className="text-slate-600" style={{ fontSize: '0.72rem' }}>Efectos de audio</p>
             </div>
           </div>
           <button
@@ -133,7 +145,7 @@ export function Profile() {
             </div>
             <div>
               <p className="text-slate-700" style={{ fontWeight: 500, fontSize: '0.875rem' }}>Notificaciones</p>
-              <p className="text-slate-400" style={{ fontSize: '0.72rem' }}>Recordatorios diarios</p>
+              <p className="text-slate-600" style={{ fontSize: '0.72rem' }}>Recordatorios diarios</p>
             </div>
           </div>
           <button
@@ -155,7 +167,7 @@ export function Profile() {
             </div>
             <div>
               <p className="text-slate-700" style={{ fontWeight: 500, fontSize: '0.875rem' }}>Alto contraste</p>
-              <p className="text-slate-400" style={{ fontSize: '0.72rem' }}>Mejora la legibilidad visual</p>
+              <p className="text-slate-600" style={{ fontSize: '0.72rem' }}>Mejora la legibilidad visual</p>
             </div>
           </div>
           <button
@@ -180,7 +192,8 @@ export function Profile() {
           { level: 'A2', label: 'Elemental', xp: '200–499 XP' },
           { level: 'B1', label: 'Intermedio', xp: '500–899 XP' },
           { level: 'B2', label: 'Intermedio alto', xp: '900–1399 XP' },
-          { level: 'C1', label: 'Avanzado', xp: '1400+ XP' },
+          { level: 'C1', label: 'Avanzado', xp: '1400–1999 XP' },
+          { level: 'C2', label: 'Maestría', xp: '2000+ XP' },
         ].map(({ level: lvl, label, xp }) => (
           <div
             key={lvl}
@@ -197,8 +210,8 @@ export function Profile() {
             <div className="flex-1">
               <p className={`${lvl === level ? 'text-indigo-700' : 'text-slate-600'}`} style={{ fontWeight: lvl === level ? 600 : 400, fontSize: '0.85rem' }}>{label}</p>
             </div>
-            <p className="text-slate-400" style={{ fontSize: '0.72rem' }}>{xp}</p>
-            {lvl === level && <span className="text-indigo-400" style={{ fontSize: '0.65rem', fontWeight: 700 }}>ACTUAL</span>}
+            <p className="text-slate-600" style={{ fontSize: '0.72rem' }}>{xp}</p>
+            {lvl === level && <span className="text-indigo-700" style={{ fontSize: '0.65rem', fontWeight: 700 }}>ACTUAL</span>}
           </div>
         ))}
       </div>
@@ -243,7 +256,7 @@ export function Profile() {
             </div>
             <div className="flex-1">
               <p className="text-red-600" style={{ fontWeight: 500, fontSize: '0.875rem' }}>Reiniciar todo el progreso</p>
-              <p className="text-slate-400" style={{ fontSize: '0.72rem' }}>Borra todo y empieza desde cero</p>
+              <p className="text-slate-600" style={{ fontSize: '0.72rem' }}>Borra todo y empieza desde cero</p>
             </div>
             <ChevronRight className="w-4 h-4 text-slate-300" />
           </button>
