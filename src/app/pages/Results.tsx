@@ -5,6 +5,7 @@ import { RotateCcw, ChevronRight, Home, Trophy, Clock, Target, Zap, XCircle, Che
 import confetti from 'canvas-confetti';
 import { useApp } from '../context/AppContext';
 import { getLessonById, getUnitForLesson } from '../data/lessons';
+import { usePageTitle } from '../hooks/usePageTitle';
 
 interface ResultState {
   score: number;
@@ -18,13 +19,14 @@ interface ResultState {
 
 function StarDisplay({ count }: { count: number }) {
   return (
-    <div className="flex gap-2 justify-center">
+    <div className="flex gap-2 justify-center" role="img" aria-label={`Has ganado ${count} de 3 estrellas`}>
       {[1, 2, 3].map(i => (
         <motion.span
           key={i}
           initial={{ scale: 0, rotate: -30 }}
           animate={{ scale: 1, rotate: 0 }}
           transition={{ delay: 0.8 + i * 0.15, type: 'spring', stiffness: 400 }}
+          aria-hidden="true"
           className={`text-3xl ${i <= count ? 'filter-none' : 'grayscale opacity-30'}`}
         >
           ⭐
@@ -40,6 +42,7 @@ export function Results() {
   const location = useLocation();
   const { completeLesson, resetLesson } = useApp();
   const confettiFired = useRef(false);
+  usePageTitle('Resultados de la lección');
 
   const resultData = location.state as ResultState | null;
   const lesson = lessonId ? getLessonById(lessonId) : null;
@@ -97,18 +100,18 @@ export function Results() {
   return (
     <div className="min-h-screen bg-slate-50 flex flex-col">
       {/* Top bar */}
-      <div className="bg-white border-b border-slate-100 px-4 py-3 flex items-center justify-between max-w-2xl mx-auto w-full">
-        <button onClick={() => navigate('/')} className="w-8 h-8 rounded-xl flex items-center justify-center text-slate-400 hover:bg-slate-100 transition-colors">
-          <Home className="w-4 h-4" />
+      <header className="bg-white border-b border-slate-100 px-4 py-3 flex items-center justify-between max-w-2xl mx-auto w-full">
+        <button onClick={() => navigate('/')} aria-label="Volver al inicio" className="w-8 h-8 rounded-xl flex items-center justify-center text-slate-600 hover:bg-slate-100 transition-colors">
+          <Home className="w-4 h-4" aria-hidden="true" />
         </button>
         <div className="text-center">
-          <p className="text-slate-500" style={{ fontSize: '0.72rem', fontWeight: 600 }}>{unit?.title ?? ''}</p>
-          <p className="text-slate-800" style={{ fontWeight: 700, fontSize: '0.9rem' }}>{lesson.title}</p>
+          <p className="text-slate-600" style={{ fontSize: '0.72rem', fontWeight: 600 }}>{unit?.title ?? ''}</p>
+          <h1 className="text-slate-800" style={{ fontWeight: 700, fontSize: '0.9rem' }}>{lesson.title}</h1>
         </div>
         <div className="w-8" />
-      </div>
+      </header>
 
-      <div className="flex-1 max-w-2xl mx-auto w-full px-4 py-6 space-y-5 pb-10">
+      <main className="flex-1 max-w-2xl mx-auto w-full px-4 py-6 space-y-5 pb-10">
         {/* Score circle */}
         <motion.div
           initial={{ opacity: 0, scale: 0.8 }}
@@ -116,12 +119,16 @@ export function Results() {
           transition={{ type: 'spring', stiffness: 200 }}
           className="flex flex-col items-center"
         >
-          <p className="text-slate-500 mb-3" style={{ fontWeight: 600, fontSize: '0.85rem' }}>{scoreMsg}</p>
+          <p className="text-slate-700 mb-3" role="status" style={{ fontWeight: 600, fontSize: '0.85rem' }}>{scoreMsg}</p>
 
-          <div className={`w-32 h-32 rounded-full bg-gradient-to-br ${scoreBg} ring-8 ${scoreRing} flex flex-col items-center justify-center shadow-lg mb-4`}>
-            <Trophy className="w-5 h-5 text-white/80 mb-0.5" />
-            <span className="text-white" style={{ fontWeight: 800, fontSize: '2rem', lineHeight: 1 }}>{score}%</span>
-            <span className="text-white/80" style={{ fontSize: '0.7rem', fontWeight: 500 }}>aciertos</span>
+          <div
+            className={`w-32 h-32 rounded-full bg-gradient-to-br ${scoreBg} ring-8 ${scoreRing} flex flex-col items-center justify-center shadow-lg mb-4`}
+            role="img"
+            aria-label={`Puntuación: ${score} por ciento de aciertos`}
+          >
+            <Trophy className="w-5 h-5 text-white/80 mb-0.5" aria-hidden="true" />
+            <span className="text-white" aria-hidden="true" style={{ fontWeight: 800, fontSize: '2rem', lineHeight: 1 }}>{score}%</span>
+            <span className="text-white/80" aria-hidden="true" style={{ fontSize: '0.7rem', fontWeight: 500 }}>aciertos</span>
           </div>
 
           <StarDisplay count={stars} />
@@ -141,7 +148,7 @@ export function Results() {
               </div>
             </div>
             <p className="text-slate-800" style={{ fontWeight: 700, fontSize: '1.1rem' }}>{correctCount}/{totalExercises}</p>
-            <p className="text-slate-400" style={{ fontSize: '0.68rem' }}>correctas</p>
+            <p className="text-slate-600" style={{ fontSize: '0.68rem' }}>correctas</p>
           </div>
           <div className="bg-white rounded-2xl p-3.5 text-center shadow-sm border border-slate-100">
             <div className="flex justify-center mb-1.5">
@@ -150,7 +157,7 @@ export function Results() {
               </div>
             </div>
             <p className="text-slate-800" style={{ fontWeight: 700, fontSize: '1.1rem' }}>{timeMinutes}m</p>
-            <p className="text-slate-400" style={{ fontSize: '0.68rem' }}>tiempo</p>
+            <p className="text-slate-600" style={{ fontSize: '0.68rem' }}>tiempo</p>
           </div>
           <div className="bg-white rounded-2xl p-3.5 text-center shadow-sm border border-slate-100">
             <div className="flex justify-center mb-1.5">
@@ -159,7 +166,7 @@ export function Results() {
               </div>
             </div>
             <p className="text-slate-800" style={{ fontWeight: 700, fontSize: '1.1rem' }}>+{xpEarned}</p>
-            <p className="text-slate-400" style={{ fontSize: '0.68rem' }}>XP ganados</p>
+            <p className="text-slate-600" style={{ fontSize: '0.68rem' }}>XP ganados</p>
           </div>
         </motion.div>
 
@@ -172,31 +179,31 @@ export function Results() {
             className="bg-white rounded-2xl shadow-sm border border-slate-100 overflow-hidden"
           >
             <div className="px-4 py-3 border-b border-slate-100 flex items-center gap-2">
-              <XCircle className="w-4 h-4 text-red-400" />
-              <p className="text-slate-700" style={{ fontWeight: 700, fontSize: '0.875rem' }}>
+              <XCircle className="w-4 h-4 text-red-500" aria-hidden="true" />
+              <h2 className="text-slate-700" style={{ fontWeight: 700, fontSize: '0.875rem' }}>
                 Errores a repasar ({errors.length})
-              </p>
+              </h2>
             </div>
-            <div className="divide-y divide-slate-100">
+            <ul className="divide-y divide-slate-100 list-none">
               {errors.map((err, i) => (
-                <div key={i} className="px-4 py-3">
+                <li key={i} className="px-4 py-3">
                   <p className="text-slate-600 mb-1.5" style={{ fontSize: '0.82rem', fontWeight: 500 }}>
                     {err.exercise.question ?? err.exercise.correctAnswer}
                   </p>
                   <div className="flex items-center gap-2 mb-1">
-                    <XCircle className="w-3.5 h-3.5 text-red-400 flex-shrink-0" />
-                    <span className="text-red-600" style={{ fontSize: '0.78rem' }}>Tu respuesta: <span style={{ fontWeight: 600 }}>"{err.userAnswer}"</span></span>
+                    <XCircle className="w-3.5 h-3.5 text-red-500 flex-shrink-0" aria-hidden="true" />
+                    <span className="text-red-700" style={{ fontSize: '0.78rem' }}>Tu respuesta: <span lang="en" style={{ fontWeight: 600 }}>"{err.userAnswer}"</span></span>
                   </div>
                   <div className="flex items-center gap-2 mb-1.5">
-                    <CheckCircle2 className="w-3.5 h-3.5 text-green-500 flex-shrink-0" />
-                    <span className="text-green-700" style={{ fontSize: '0.78rem' }}>Correcto: <span style={{ fontWeight: 600 }}>"{err.exercise.correctAnswer}"</span></span>
+                    <CheckCircle2 className="w-3.5 h-3.5 text-green-600 flex-shrink-0" aria-hidden="true" />
+                    <span className="text-green-700" style={{ fontSize: '0.78rem' }}>Correcto: <span lang="en" style={{ fontWeight: 600 }}>"{err.exercise.correctAnswer}"</span></span>
                   </div>
-                  <p className="text-slate-500 pl-5" style={{ fontSize: '0.75rem', lineHeight: 1.4 }}>
+                  <p className="text-slate-600 pl-5" style={{ fontSize: '0.75rem', lineHeight: 1.4 }}>
                     {err.exercise.explanation}
                   </p>
-                </div>
+                </li>
               ))}
-            </div>
+            </ul>
           </motion.div>
         )}
 
@@ -213,18 +220,18 @@ export function Results() {
             style={{ fontWeight: 600 }}
           >
             Continuar al siguiente nivel
-            <ChevronRight className="w-4 h-4" />
+            <ChevronRight className="w-4 h-4" aria-hidden="true" />
           </button>
           <button
             onClick={handleRetry}
-            className="w-full bg-slate-100 hover:bg-slate-200 text-slate-600 rounded-2xl py-3.5 flex items-center justify-center gap-2 transition-colors"
+            className="w-full bg-slate-100 hover:bg-slate-200 text-slate-700 rounded-2xl py-3.5 flex items-center justify-center gap-2 transition-colors"
             style={{ fontWeight: 600 }}
           >
-            <RotateCcw className="w-4 h-4" />
+            <RotateCcw className="w-4 h-4" aria-hidden="true" />
             Reintentar lección
           </button>
         </motion.div>
-      </div>
+      </main>
     </div>
   );
 }

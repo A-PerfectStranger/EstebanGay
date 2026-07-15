@@ -4,10 +4,12 @@ import { motion } from 'motion/react';
 import { Dumbbell, Play, Lock, ChevronRight, Shuffle } from 'lucide-react';
 import { useApp } from '../context/AppContext';
 import { units } from '../data/lessons';
+import { usePageTitle } from '../hooks/usePageTitle';
 
 export function Practice() {
   const { state, isLessonLocked } = useApp();
   const navigate = useNavigate();
+  usePageTitle('Práctica');
 
   // Only show lessons that are unlocked
   const unlocked = units
@@ -38,17 +40,19 @@ export function Practice() {
       {/* Header */}
       <div>
         <h1 className="text-slate-800" style={{ fontWeight: 700, fontSize: '1.2rem' }}>Práctica</h1>
-        <p className="text-slate-400" style={{ fontSize: '0.78rem' }}>Elige cómo quieres practicar hoy</p>
+        <p className="text-slate-600" style={{ fontSize: '0.78rem' }}>Elige cómo quieres practicar hoy</p>
       </div>
 
-      {/* Quick practice options */}
+      {/* Quick practice options — botones reales para que el teclado y los
+          lectores de pantalla puedan activarlos (WCAG 2.1.1 / 4.1.2). */}
       <div className="space-y-3">
         {practiceTypes.map(pt => (
-          <motion.div
+          <motion.button
             key={pt.id}
             initial={{ opacity: 0, y: 10 }}
             animate={{ opacity: 1, y: 0 }}
-            className={`bg-white rounded-2xl p-4 shadow-sm border border-slate-100 flex items-center gap-4 ${pt.available ? 'hover:border-indigo-200 hover:shadow-md cursor-pointer' : 'opacity-50'} transition-all`}
+            disabled={!pt.available}
+            className={`w-full text-left bg-white rounded-2xl p-4 shadow-sm border border-slate-100 flex items-center gap-4 ${pt.available ? 'hover:border-indigo-200 hover:shadow-md cursor-pointer' : 'bg-slate-50'} transition-all`}
             onClick={() => {
               if (!pt.available) return;
               if (pt.id === 'next') navigate('/lessons');
@@ -58,20 +62,20 @@ export function Practice() {
               }
             }}
           >
-            <div className="w-12 h-12 bg-indigo-100 rounded-2xl flex items-center justify-center text-2xl flex-shrink-0">
+            <div className="w-12 h-12 bg-indigo-100 rounded-2xl flex items-center justify-center text-2xl flex-shrink-0" aria-hidden="true">
               {pt.icon}
             </div>
             <div className="flex-1">
               <p className="text-slate-800" style={{ fontWeight: 600 }}>{pt.title}</p>
-              <p className="text-slate-400" style={{ fontSize: '0.78rem' }}>{pt.description}</p>
+              <p className="text-slate-600" style={{ fontSize: '0.78rem' }}>{pt.description}</p>
               {!pt.available && (
-                <p className="text-amber-500 mt-0.5" style={{ fontSize: '0.72rem', fontWeight: 600 }}>
+                <p className="text-amber-700 mt-0.5" style={{ fontSize: '0.72rem', fontWeight: 600 }}>
                   Completa al menos una lección primero
                 </p>
               )}
             </div>
-            <ChevronRight className="w-4 h-4 text-slate-300" />
-          </motion.div>
+            <ChevronRight className="w-4 h-4 text-slate-400" aria-hidden="true" />
+          </motion.button>
         ))}
       </div>
 
@@ -95,22 +99,22 @@ export function Practice() {
                   onClick={() => navigate(`/exercise/${lesson.id}`)}
                   className="w-full bg-white rounded-xl p-3.5 shadow-sm border border-slate-100 flex items-center gap-3 hover:border-indigo-200 hover:shadow-md transition-all text-left"
                 >
-                  <div className={`w-10 h-10 ${lesson.colorClass} rounded-xl flex items-center justify-center text-lg flex-shrink-0`}>
+                  <div className={`w-10 h-10 ${lesson.colorClass} rounded-xl flex items-center justify-center text-lg flex-shrink-0`} aria-hidden="true">
                     {lesson.emoji}
                   </div>
                   <div className="flex-1 min-w-0">
                     <p className="text-slate-800 truncate" style={{ fontWeight: 600, fontSize: '0.875rem' }}>{lesson.title}</p>
-                    <p className="text-slate-400" style={{ fontSize: '0.72rem' }}>{lesson.level} · {lesson.topic}</p>
+                    <p className="text-slate-600" style={{ fontSize: '0.72rem' }}>{lesson.level} · {lesson.topic}</p>
                   </div>
                   <div className="flex items-center gap-1 flex-shrink-0">
                     {isCompleted ? (
-                      <div className="flex">
+                      <div className="flex" role="img" aria-label={`${progress?.stars ?? 0} de 3 estrellas`}>
                         {[1,2,3].map(i => (
-                          <span key={i} className={`text-xs ${i <= (progress?.stars ?? 0) ? 'text-amber-400' : 'text-slate-200'}`}>★</span>
+                          <span key={i} aria-hidden="true" className={`text-xs ${i <= (progress?.stars ?? 0) ? 'text-amber-400' : 'text-slate-200'}`}>★</span>
                         ))}
                       </div>
                     ) : (
-                      <Play className="w-3.5 h-3.5 text-indigo-400 fill-indigo-400" />
+                      <Play className="w-3.5 h-3.5 text-indigo-400 fill-indigo-400" aria-hidden="true" />
                     )}
                   </div>
                 </motion.button>
@@ -121,7 +125,7 @@ export function Practice() {
       )}
 
       {unlocked.length === 0 && (
-        <div className="text-center py-12 text-slate-400">
+        <div className="text-center py-12 text-slate-600">
           <Dumbbell className="w-10 h-10 mx-auto mb-3 opacity-40" />
           <p style={{ fontWeight: 500 }}>No hay lecciones disponibles</p>
           <p className="mt-1" style={{ fontSize: '0.82rem' }}>Completa la primera lección para desbloquear práctica</p>

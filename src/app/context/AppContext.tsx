@@ -1,4 +1,5 @@
 import React, { createContext, useContext, useState, useEffect, useCallback } from 'react';
+import { getAllLessons } from '../data/lessons';
 
 export interface LessonProgress {
   completed: boolean;
@@ -45,7 +46,8 @@ export function getLevel(xp: number): string {
   if (xp < 500) return 'A2';
   if (xp < 900) return 'B1';
   if (xp < 1400) return 'B2';
-  return 'C1';
+  if (xp < 2000) return 'C1';
+  return 'C2';
 }
 
 export function getNextLevel(xp: number): string {
@@ -53,11 +55,11 @@ export function getNextLevel(xp: number): string {
   if (xp < 500) return 'B1';
   if (xp < 900) return 'B2';
   if (xp < 1400) return 'C1';
-  return 'C1';
+  return 'C2';
 }
 
 export function getXpProgress(xp: number): { current: number; needed: number; percent: number } {
-  const thresholds = [0, 200, 500, 900, 1400, 2000];
+  const thresholds = [0, 200, 500, 900, 1400, 2000, 2800];
   for (let i = 0; i < thresholds.length - 1; i++) {
     if (xp < thresholds[i + 1]) {
       const current = xp - thresholds[i];
@@ -65,7 +67,7 @@ export function getXpProgress(xp: number): { current: number; needed: number; pe
       return { current, needed, percent: Math.round((current / needed) * 100) };
     }
   }
-  return { current: xp - 1400, needed: 600, percent: Math.min(100, Math.round(((xp - 1400) / 600) * 100)) };
+  return { current: xp - 2000, needed: 800, percent: Math.min(100, Math.round(((xp - 2000) / 800) * 100)) };
 }
 
 interface AppContextType {
@@ -84,11 +86,9 @@ interface AppContextType {
 const AppContext = createContext<AppContextType | null>(null);
 const STORAGE_KEY = 'linguaflow_state_v2';
 
-const LESSON_ORDER = [
-  'lesson-1','lesson-2','lesson-3','lesson-4',
-  'lesson-5','lesson-6','lesson-7','lesson-8',
-  'lesson-9','lesson-10','lesson-11','lesson-12',
-];
+// El orden se deriva del contenido: nuevas unidades/lecciones quedan
+// encadenadas en la ruta sin tener que mantener una lista aparte.
+const LESSON_ORDER = getAllLessons().map(l => l.id);
 
 export function AppProvider({ children }: { children: React.ReactNode }) {
   const [state, setState] = useState<AppState>(() => {
