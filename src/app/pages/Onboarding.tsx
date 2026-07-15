@@ -10,7 +10,7 @@ const slides = [
     icon: '🌟',
     title: '¡Bienvenido/a a LinguaFlow!',
     description: 'Aprende inglés de manera efectiva con lecciones interactivas, feedback inmediato y un sistema de progresión motivador.',
-    color: 'from-indigo-500 to-purple-600',
+    color: 'from-indigo-600 to-purple-700',
     features: [
       { icon: <Zap className="w-4 h-4" />, text: 'Aprende a tu propio ritmo' },
       { icon: <Star className="w-4 h-4" />, text: 'Gana XP y sube de nivel' },
@@ -21,7 +21,7 @@ const slides = [
     icon: '🎯',
     title: 'Tipos de ejercicios',
     description: 'Practica con ejercicios variados que hacen el aprendizaje efectivo y entretenido.',
-    color: 'from-emerald-500 to-teal-600',
+    color: 'from-emerald-700 to-teal-800',
     features: [
       { icon: <CheckCircle2 className="w-4 h-4" />, text: 'Selección múltiple' },
       { icon: <CheckCircle2 className="w-4 h-4" />, text: 'Completa la oración' },
@@ -33,7 +33,7 @@ const slides = [
     icon: '⚡',
     title: 'Feedback inmediato',
     description: 'Después de cada respuesta recibirás una explicación detallada para que entiendas el "por qué" de cada respuesta.',
-    color: 'from-orange-500 to-amber-600',
+    color: 'from-orange-700 to-amber-800',
     features: [
       { icon: <CheckCircle2 className="w-4 h-4 text-green-500" />, text: 'Correcto: refuerzo positivo' },
       { icon: <MessageSquare className="w-4 h-4 text-orange-500" />, text: 'Incorrecto: explicación gramatical' },
@@ -44,7 +44,7 @@ const slides = [
     icon: '🗺️',
     title: 'Tu ruta de aprendizaje',
     description: 'Sigue una ruta estructurada desde A1 hasta C2, desbloqueando niveles y contenido a medida que avanzas.',
-    color: 'from-pink-500 to-rose-600',
+    color: 'from-pink-700 to-rose-800',
     features: [
       { icon: <Zap className="w-4 h-4" />, text: 'Niveles A1 → C2' },
       { icon: <Star className="w-4 h-4" />, text: 'Gana 1–3 estrellas por lección' },
@@ -114,7 +114,7 @@ export function Onboarding() {
             <div className={`bg-gradient-to-br ${slide.color} p-8 flex flex-col items-center text-center`}>
               <span className="text-5xl mb-4" aria-hidden="true">{slide.icon}</span>
               <h1 className="text-white mb-2" style={{ fontWeight: 700, fontSize: '1.3rem', lineHeight: 1.3 }}>{slide.title}</h1>
-              <p className="text-white/80" style={{ fontSize: '0.85rem', lineHeight: 1.5 }}>{slide.description}</p>
+              <p className="text-white" style={{ fontSize: '0.85rem', lineHeight: 1.5 }}>{slide.description}</p>
             </div>
 
             {/* Features */}

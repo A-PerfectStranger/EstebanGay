@@ -42,8 +42,8 @@ export const units: Unit[] = [
     title: 'Unidad 1',
     subtitle: 'Fundamentos del Inglés',
     level: 'A1',
-    gradientFrom: 'from-emerald-500',
-    gradientTo: 'to-teal-600',
+    gradientFrom: 'from-emerald-700',
+    gradientTo: 'to-teal-800',
     lessons: [
       {
         id: 'lesson-1',
@@ -284,8 +284,8 @@ export const units: Unit[] = [
     title: 'Unidad 2',
     subtitle: 'Inglés Elemental',
     level: 'A2',
-    gradientFrom: 'from-orange-500',
-    gradientTo: 'to-amber-600',
+    gradientFrom: 'from-orange-700',
+    gradientTo: 'to-amber-800',
     lessons: [
       {
         id: 'lesson-5',
@@ -986,7 +986,7 @@ export const units: Unit[] = [
     title: 'Unidad 5',
     subtitle: 'Inglés Avanzado',
     level: 'C1',
-    gradientFrom: 'from-rose-600',
+    gradientFrom: 'from-rose-700',
     gradientTo: 'to-pink-700',
     lessons: [
       {

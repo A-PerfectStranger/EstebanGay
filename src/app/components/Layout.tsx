@@ -131,7 +131,7 @@ export function Layout() {
                   <div className={`p-1.5 rounded-xl transition-colors ${isActive ? 'bg-indigo-100' : ''}`}>
                     <item.icon className="w-[1.1rem] h-[1.1rem]" aria-hidden="true" />
                   </div>
-                  <span style={{ fontSize: '0.62rem', fontWeight: isActive ? 600 : 500 }}>{item.label}</span>
+                  <span style={{ fontSize: '0.7rem', fontWeight: isActive ? 600 : 500 }}>{item.label}</span>
                 </>
               )}
             </NavLink>

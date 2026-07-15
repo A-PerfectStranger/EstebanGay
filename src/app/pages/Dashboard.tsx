@@ -67,7 +67,7 @@ export function Dashboard() {
               className="h-full bg-white rounded-full"
             />
           </div>
-          <p className="text-indigo-100 mt-1.5" style={{ fontSize: '0.68rem' }}>
+          <p className="text-indigo-100 mt-1.5" style={{ fontSize: '0.75rem' }}>
             {xpInfo.needed - xpInfo.current} XP para {getLevel(state.user.xp + (xpInfo.needed - xpInfo.current))}
           </p>
         </div>
@@ -80,32 +80,32 @@ export function Dashboard() {
         transition={{ delay: 0.1 }}
         className="grid grid-cols-3 gap-3"
       >
-        <div className="bg-white rounded-2xl p-3.5 text-center shadow-sm border border-slate-100">
+        <div className="bg-white rounded-2xl p-3.5 text-center shadow-sm border border-slate-100" role="group" aria-label={`${state.user.streak} días racha`}>
           <div className="flex justify-center mb-1.5">
             <div className="w-8 h-8 bg-orange-100 rounded-xl flex items-center justify-center">
-              <Flame className="w-4 h-4 text-orange-500" />
+              <Flame className="w-4 h-4 text-orange-500" aria-hidden="true" />
             </div>
           </div>
-          <p className="text-slate-800" style={{ fontWeight: 700, fontSize: '1.1rem' }}>{state.user.streak}</p>
-          <p className="text-slate-600" style={{ fontSize: '0.68rem' }}>días racha</p>
+          <p className="text-slate-800" aria-hidden="true" style={{ fontWeight: 700, fontSize: '1.1rem' }}>{state.user.streak}</p>
+          <p className="text-slate-600" aria-hidden="true" style={{ fontSize: '0.75rem' }}>días racha</p>
         </div>
-        <div className="bg-white rounded-2xl p-3.5 text-center shadow-sm border border-slate-100">
+        <div className="bg-white rounded-2xl p-3.5 text-center shadow-sm border border-slate-100" role="group" aria-label={`${timeLabel} de tiempo total`}>
           <div className="flex justify-center mb-1.5">
             <div className="w-8 h-8 bg-blue-100 rounded-xl flex items-center justify-center">
-              <Clock className="w-4 h-4 text-blue-500" />
+              <Clock className="w-4 h-4 text-blue-500" aria-hidden="true" />
             </div>
           </div>
-          <p className="text-slate-800" style={{ fontWeight: 700, fontSize: '1.1rem' }}>{timeLabel}</p>
-          <p className="text-slate-600" style={{ fontSize: '0.68rem' }}>tiempo total</p>
+          <p className="text-slate-800" aria-hidden="true" style={{ fontWeight: 700, fontSize: '1.1rem' }}>{timeLabel}</p>
+          <p className="text-slate-600" aria-hidden="true" style={{ fontSize: '0.75rem' }}>tiempo total</p>
         </div>
-        <div className="bg-white rounded-2xl p-3.5 text-center shadow-sm border border-slate-100">
+        <div className="bg-white rounded-2xl p-3.5 text-center shadow-sm border border-slate-100" role="group" aria-label={`${completedCount} lecciones completadas`}>
           <div className="flex justify-center mb-1.5">
             <div className="w-8 h-8 bg-indigo-100 rounded-xl flex items-center justify-center">
-              <Trophy className="w-4 h-4 text-indigo-500" />
+              <Trophy className="w-4 h-4 text-indigo-500" aria-hidden="true" />
             </div>
           </div>
-          <p className="text-slate-800" style={{ fontWeight: 700, fontSize: '1.1rem' }}>{completedCount}</p>
-          <p className="text-slate-600" style={{ fontSize: '0.68rem' }}>lecciones</p>
+          <p className="text-slate-800" aria-hidden="true" style={{ fontWeight: 700, fontSize: '1.1rem' }}>{completedCount}</p>
+          <p className="text-slate-600" aria-hidden="true" style={{ fontSize: '0.75rem' }}>lecciones</p>
         </div>
       </motion.div>
 
@@ -151,7 +151,7 @@ export function Dashboard() {
                 {/* Unit header */}
                 <div className={`bg-gradient-to-r ${unit.gradientFrom} ${unit.gradientTo} rounded-2xl p-4 mb-5 flex items-center justify-between`}>
                   <div>
-                    <p className="text-white/80" style={{ fontSize: '0.7rem', fontWeight: 600 }}>{unit.title} · {unit.level}</p>
+                    <p className="text-white" style={{ fontSize: '0.7rem', fontWeight: 600 }}>{unit.title} · {unit.level}</p>
                     <h3 className="text-white" style={{ fontWeight: 700 }}>{unit.subtitle}</h3>
                   </div>
                   {allCompleted && (
@@ -243,14 +243,14 @@ export function Dashboard() {
                           {!locked && inProgress && (
                             <div className="flex items-center gap-1 bg-indigo-100 px-1.5 py-0.5 rounded-full">
                               <Play className="w-2.5 h-2.5 text-indigo-500 fill-indigo-500" aria-hidden="true" />
-                              <span className="text-indigo-700" style={{ fontSize: '0.6rem', fontWeight: 600 }}>EN CURSO</span>
+                              <span className="text-indigo-700" style={{ fontSize: '0.75rem', fontWeight: 600 }}>EN CURSO</span>
                             </div>
                           )}
 
                           {/* Label */}
                           <p
                             className={`text-center max-w-[90px] leading-tight ${locked ? 'text-slate-500' : 'text-slate-700'}`}
-                            style={{ fontSize: '0.65rem', fontWeight: 600 }}
+                            style={{ fontSize: '0.75rem', fontWeight: 600 }}
                           >
                             {lesson.title}
                           </p>

@@ -85,7 +85,7 @@ export function Results() {
   };
 
   const scoreColor = score >= 80 ? 'text-green-600' : score >= 60 ? 'text-amber-500' : 'text-red-500';
-  const scoreBg = score >= 80 ? 'from-green-400 to-emerald-500' : score >= 60 ? 'from-amber-400 to-orange-500' : 'from-red-400 to-rose-500';
+  const scoreBg = score >= 80 ? 'from-green-700 to-emerald-800' : score >= 60 ? 'from-amber-700 to-orange-800' : 'from-red-700 to-rose-800';
   const scoreRing = score >= 80 ? 'ring-green-300' : score >= 60 ? 'ring-amber-300' : 'ring-red-300';
   const scoreMsg = score === 100 ? '¡Perfecto! 🏆' : score >= 80 ? '¡Excelente! 🎉' : score >= 60 ? '¡Bien hecho! 👍' : 'Sigue practicando 💪';
 
@@ -126,9 +126,9 @@ export function Results() {
             role="img"
             aria-label={`Puntuación: ${score} por ciento de aciertos`}
           >
-            <Trophy className="w-5 h-5 text-white/80 mb-0.5" aria-hidden="true" />
+            <Trophy className="w-5 h-5 text-white mb-0.5" aria-hidden="true" />
             <span className="text-white" aria-hidden="true" style={{ fontWeight: 800, fontSize: '2rem', lineHeight: 1 }}>{score}%</span>
-            <span className="text-white/80" aria-hidden="true" style={{ fontSize: '0.7rem', fontWeight: 500 }}>aciertos</span>
+            <span className="text-white" aria-hidden="true" style={{ fontSize: '0.7rem', fontWeight: 500 }}>aciertos</span>
           </div>
 
           <StarDisplay count={stars} />
@@ -141,32 +141,32 @@ export function Results() {
           transition={{ delay: 0.3 }}
           className="grid grid-cols-3 gap-3"
         >
-          <div className="bg-white rounded-2xl p-3.5 text-center shadow-sm border border-slate-100">
+          <div className="bg-white rounded-2xl p-3.5 text-center shadow-sm border border-slate-100" role="group" aria-label={`${correctCount} de ${totalExercises} correctas`}>
             <div className="flex justify-center mb-1.5">
               <div className="w-8 h-8 bg-green-100 rounded-xl flex items-center justify-center">
-                <Target className="w-4 h-4 text-green-600" />
+                <Target className="w-4 h-4 text-green-600" aria-hidden="true" />
               </div>
             </div>
-            <p className="text-slate-800" style={{ fontWeight: 700, fontSize: '1.1rem' }}>{correctCount}/{totalExercises}</p>
-            <p className="text-slate-600" style={{ fontSize: '0.68rem' }}>correctas</p>
+            <p className="text-slate-800" aria-hidden="true" style={{ fontWeight: 700, fontSize: '1.1rem' }}>{correctCount}/{totalExercises}</p>
+            <p className="text-slate-600" aria-hidden="true" style={{ fontSize: '0.75rem' }}>correctas</p>
           </div>
-          <div className="bg-white rounded-2xl p-3.5 text-center shadow-sm border border-slate-100">
+          <div className="bg-white rounded-2xl p-3.5 text-center shadow-sm border border-slate-100" role="group" aria-label={`${timeMinutes} minutos de tiempo`}>
             <div className="flex justify-center mb-1.5">
               <div className="w-8 h-8 bg-blue-100 rounded-xl flex items-center justify-center">
-                <Clock className="w-4 h-4 text-blue-500" />
+                <Clock className="w-4 h-4 text-blue-500" aria-hidden="true" />
               </div>
             </div>
-            <p className="text-slate-800" style={{ fontWeight: 700, fontSize: '1.1rem' }}>{timeMinutes}m</p>
-            <p className="text-slate-600" style={{ fontSize: '0.68rem' }}>tiempo</p>
+            <p className="text-slate-800" aria-hidden="true" style={{ fontWeight: 700, fontSize: '1.1rem' }}>{timeMinutes}m</p>
+            <p className="text-slate-600" aria-hidden="true" style={{ fontSize: '0.75rem' }}>tiempo</p>
           </div>
-          <div className="bg-white rounded-2xl p-3.5 text-center shadow-sm border border-slate-100">
+          <div className="bg-white rounded-2xl p-3.5 text-center shadow-sm border border-slate-100" role="group" aria-label={`${xpEarned} XP ganados`}>
             <div className="flex justify-center mb-1.5">
               <div className="w-8 h-8 bg-amber-100 rounded-xl flex items-center justify-center">
-                <Zap className="w-4 h-4 text-amber-500" />
+                <Zap className="w-4 h-4 text-amber-500" aria-hidden="true" />
               </div>
             </div>
-            <p className="text-slate-800" style={{ fontWeight: 700, fontSize: '1.1rem' }}>+{xpEarned}</p>
-            <p className="text-slate-600" style={{ fontSize: '0.68rem' }}>XP ganados</p>
+            <p className="text-slate-800" aria-hidden="true" style={{ fontWeight: 700, fontSize: '1.1rem' }}>+{xpEarned}</p>
+            <p className="text-slate-600" aria-hidden="true" style={{ fontSize: '0.75rem' }}>XP ganados</p>
           </div>
         </motion.div>
 

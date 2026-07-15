@@ -211,7 +211,7 @@ export function Profile() {
               <p className={`${lvl === level ? 'text-indigo-700' : 'text-slate-600'}`} style={{ fontWeight: lvl === level ? 600 : 400, fontSize: '0.85rem' }}>{label}</p>
             </div>
             <p className="text-slate-600" style={{ fontSize: '0.72rem' }}>{xp}</p>
-            {lvl === level && <span className="text-indigo-700" style={{ fontSize: '0.65rem', fontWeight: 700 }}>ACTUAL</span>}
+            {lvl === level && <span className="text-indigo-700" style={{ fontSize: '0.75rem', fontWeight: 700 }}>ACTUAL</span>}
           </div>
         ))}
       </div>
