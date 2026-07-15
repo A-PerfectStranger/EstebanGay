@@ -5,7 +5,7 @@ import { useApp, getLevel, getXpProgress } from '../context/AppContext';
 import { units, getLessonById } from '../data/lessons';
 import { usePageTitle } from '../hooks/usePageTitle';
 
-function StarRow({ count }: { count: number }) {
+function StarRow({ count }: Readonly<{ count: number }>) {
   return (
     <div className="flex gap-0.5" role="img" aria-label={`${count} de 3 estrellas`}>
       {[1, 2, 3].map(i => (
@@ -51,15 +51,15 @@ export function Dashboard() {
             <span style={{ fontSize: '0.75rem', fontWeight: 600 }}>Nivel {level}</span>
             <span style={{ fontSize: '0.72rem' }} className="text-indigo-100">{xpInfo.current} / {xpInfo.needed} XP</span>
           </div>
-          <div
-            className="h-2 bg-white/30 rounded-full overflow-hidden"
-            role="progressbar"
+          <progress
+            className="sr-only"
+            value={xpInfo.percent}
+            max={100}
             aria-label={`Progreso del nivel ${level}`}
-            aria-valuenow={xpInfo.percent}
-            aria-valuemin={0}
-            aria-valuemax={100}
-            aria-valuetext={`${xpInfo.current} de ${xpInfo.needed} XP`}
           >
+            {xpInfo.current} de {xpInfo.needed} XP
+          </progress>
+          <div className="h-2 bg-white/30 rounded-full overflow-hidden" aria-hidden="true">
             <motion.div
               initial={{ width: 0 }}
               animate={{ width: `${xpInfo.percent}%` }}
@@ -80,7 +80,8 @@ export function Dashboard() {
         transition={{ delay: 0.1 }}
         className="grid grid-cols-3 gap-3"
       >
-        <div className="bg-white rounded-2xl p-3.5 text-center shadow-sm border border-slate-100" role="group" aria-label={`${state.user.streak} días racha`}>
+        <fieldset className="bg-white rounded-2xl p-3.5 text-center shadow-sm border border-slate-100 m-0 min-w-0">
+          <legend className="sr-only">{`${state.user.streak} días racha`}</legend>
           <div className="flex justify-center mb-1.5">
             <div className="w-8 h-8 bg-orange-100 rounded-xl flex items-center justify-center">
               <Flame className="w-4 h-4 text-orange-500" aria-hidden="true" />
@@ -88,8 +89,9 @@ export function Dashboard() {
           </div>
           <p className="text-slate-800" aria-hidden="true" style={{ fontWeight: 700, fontSize: '1.1rem' }}>{state.user.streak}</p>
           <p className="text-slate-600" aria-hidden="true" style={{ fontSize: '0.75rem' }}>días racha</p>
-        </div>
-        <div className="bg-white rounded-2xl p-3.5 text-center shadow-sm border border-slate-100" role="group" aria-label={`${timeLabel} de tiempo total`}>
+        </fieldset>
+        <fieldset className="bg-white rounded-2xl p-3.5 text-center shadow-sm border border-slate-100 m-0 min-w-0">
+          <legend className="sr-only">{`${timeLabel} de tiempo total`}</legend>
           <div className="flex justify-center mb-1.5">
             <div className="w-8 h-8 bg-blue-100 rounded-xl flex items-center justify-center">
               <Clock className="w-4 h-4 text-blue-500" aria-hidden="true" />
@@ -97,8 +99,9 @@ export function Dashboard() {
           </div>
           <p className="text-slate-800" aria-hidden="true" style={{ fontWeight: 700, fontSize: '1.1rem' }}>{timeLabel}</p>
           <p className="text-slate-600" aria-hidden="true" style={{ fontSize: '0.75rem' }}>tiempo total</p>
-        </div>
-        <div className="bg-white rounded-2xl p-3.5 text-center shadow-sm border border-slate-100" role="group" aria-label={`${completedCount} lecciones completadas`}>
+        </fieldset>
+        <fieldset className="bg-white rounded-2xl p-3.5 text-center shadow-sm border border-slate-100 m-0 min-w-0">
+          <legend className="sr-only">{`${completedCount} lecciones completadas`}</legend>
           <div className="flex justify-center mb-1.5">
             <div className="w-8 h-8 bg-indigo-100 rounded-xl flex items-center justify-center">
               <Trophy className="w-4 h-4 text-indigo-500" aria-hidden="true" />
@@ -106,7 +109,7 @@ export function Dashboard() {
           </div>
           <p className="text-slate-800" aria-hidden="true" style={{ fontWeight: 700, fontSize: '1.1rem' }}>{completedCount}</p>
           <p className="text-slate-600" aria-hidden="true" style={{ fontSize: '0.75rem' }}>lecciones</p>
-        </div>
+        </fieldset>
       </motion.div>
 
       {/* ── CONTINUE CARD ── */}
@@ -171,14 +174,14 @@ export function Dashboard() {
                     viewBox={`0 0 100 ${unit.lessons.length * 90}`}
                     aria-hidden="true"
                   >
-                    {unit.lessons.slice(0, -1).map((_, i) => {
+                    {unit.lessons.slice(0, -1).map((lesson, i) => {
                       const x1 = ZIGZAG[i % ZIGZAG.length] * 100;
                       const y1 = i * 90 + 32;
                       const x2 = ZIGZAG[(i + 1) % ZIGZAG.length] * 100;
                       const y2 = (i + 1) * 90 + 32;
                       return (
                         <path
-                          key={i}
+                          key={`${lesson.id}-${unit.lessons[i + 1].id}`}
                           d={`M ${x1} ${y1} C ${x1} ${(y1 + y2) / 2} ${x2} ${(y1 + y2) / 2} ${x2} ${y2}`}
                           fill="none"
                           stroke="#e2e8f0"
@@ -198,6 +201,28 @@ export function Dashboard() {
                     const inProgress = !completed && (progress?.exerciseIndex ?? 0) > 0;
                     const stars = progress?.stars ?? 0;
 
+                    let statusLabel: string;
+                    if (locked) {
+                      statusLabel = 'Bloqueada, completa la lección anterior para desbloquearla';
+                    } else if (completed) {
+                      statusLabel = `Completada con ${stars} de 3 estrellas`;
+                    } else if (inProgress) {
+                      statusLabel = 'En curso';
+                    } else {
+                      statusLabel = 'Disponible';
+                    }
+
+                    let nodeStateClass: string;
+                    if (locked) {
+                      nodeStateClass = 'bg-slate-200 cursor-not-allowed shadow-none';
+                    } else if (completed) {
+                      nodeStateClass = `${lesson.colorClass} shadow-lg hover:scale-105 active:scale-95`;
+                    } else if (inProgress) {
+                      nodeStateClass = `${lesson.colorClass} opacity-80 hover:opacity-100 hover:scale-105 active:scale-95 ring-4 ring-offset-2 ring-indigo-300`;
+                    } else {
+                      nodeStateClass = `${lesson.colorClass} opacity-75 hover:opacity-100 hover:scale-105 active:scale-95`;
+                    }
+
                     return (
                       <div
                         key={lesson.id}
@@ -209,24 +234,8 @@ export function Dashboard() {
                           <button
                             onClick={() => !locked && navigate(`/exercise/${lesson.id}`)}
                             disabled={locked}
-                            aria-label={`Lección: ${lesson.title}, nivel ${lesson.level}. ${
-                              locked
-                                ? 'Bloqueada, completa la lección anterior para desbloquearla'
-                                : completed
-                                ? `Completada con ${stars} de 3 estrellas`
-                                : inProgress
-                                ? 'En curso'
-                                : 'Disponible'
-                            }`}
-                            className={`w-16 h-16 rounded-2xl shadow-md flex flex-col items-center justify-center transition-all ${
-                              locked
-                                ? 'bg-slate-200 cursor-not-allowed shadow-none'
-                                : completed
-                                ? `${lesson.colorClass} shadow-lg hover:scale-105 active:scale-95`
-                                : inProgress
-                                ? `${lesson.colorClass} opacity-80 hover:opacity-100 hover:scale-105 active:scale-95 ring-4 ring-offset-2 ring-indigo-300`
-                                : `${lesson.colorClass} opacity-75 hover:opacity-100 hover:scale-105 active:scale-95`
-                            }`}
+                            aria-label={`Lección: ${lesson.title}, nivel ${lesson.level}. ${statusLabel}`}
+                            className={`w-16 h-16 rounded-2xl shadow-md flex flex-col items-center justify-center transition-all ${nodeStateClass}`}
                           >
                             {locked ? (
                               <Lock className="w-6 h-6 text-slate-500" aria-hidden="true" />
