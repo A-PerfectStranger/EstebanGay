@@ -1,15 +1,15 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router';
 import { motion } from 'motion/react';
-import { Lock, RotateCcw, Play, CheckCircle2, Filter } from 'lucide-react';
+import { Lock, RotateCcw, Play, Filter } from 'lucide-react';
 import { useApp } from '../context/AppContext';
-import { units, type Level } from '../data/lessons';
+import { units, type Level, type Lesson } from '../data/lessons';
 import { usePageTitle } from '../hooks/usePageTitle';
 
 type TopicFilter = 'all' | 'Gramática' | 'Vocabulario' | 'Conversación';
 type LevelFilter = 'all' | Level;
 
-function StarRow({ count, size = 'sm' }: { count: number; size?: 'sm' | 'md' }) {
+function StarRow({ count, size = 'sm' }: Readonly<{ count: number; size?: 'sm' | 'md' }>) {
   return (
     <div className="flex gap-0.5" role="img" aria-label={`${count} de 3 estrellas`}>
       {[1, 2, 3].map(i => (
@@ -28,9 +28,181 @@ const LEVEL_COLORS: Record<string, string> = {
   C1: 'bg-rose-100 text-rose-700', C2: 'bg-slate-200 text-slate-800',
 };
 
-export function LessonList() {
-  const { state, isLessonLocked, resetLesson } = useApp();
+function LessonCard({
+  lesson,
+  idx,
+  resetting,
+  onStartReset,
+  onConfirmReset,
+  onCancelReset,
+}: Readonly<{
+  lesson: Lesson;
+  idx: number;
+  resetting: string | null;
+  onStartReset: (lessonId: string) => void;
+  onConfirmReset: (e: React.MouseEvent, lessonId: string) => void;
+  onCancelReset: () => void;
+}>) {
+  const { state, isLessonLocked } = useApp();
   const navigate = useNavigate();
+
+  const progress = state.lessonProgress[lesson.id];
+  const locked = isLessonLocked(lesson.id);
+  const completed = progress?.completed ?? false;
+  const inProgress = !completed && (progress?.exerciseIndex ?? 0) > 0;
+  const stars = progress?.stars ?? 0;
+  const score = progress?.score ?? 0;
+
+  const cardBorderClass = locked
+    ? 'border-slate-200 bg-slate-50'
+    : 'border-slate-100 hover:border-indigo-200 hover:shadow-md';
+
+  let statusContent: React.ReactNode;
+  if (completed) {
+    statusContent = (
+      <>
+        <StarRow count={stars} />
+        <span className="text-slate-600" style={{ fontSize: '0.75rem' }}>{score}% aciertos · +{progress?.xpEarned ?? 0} XP</span>
+      </>
+    );
+  } else if (inProgress) {
+    statusContent = (
+      <span className="text-indigo-600" style={{ fontSize: '0.72rem', fontWeight: 600 }}>
+        {Math.round(((progress?.exerciseIndex ?? 0) / lesson.exercises.length) * 100)}% completado
+      </span>
+    );
+  } else if (locked) {
+    statusContent = <span className="text-slate-500" style={{ fontSize: '0.72rem' }}>Bloqueado — completa la lección anterior</span>;
+  } else {
+    statusContent = <span className="text-slate-600" style={{ fontSize: '0.72rem' }}>{lesson.exercises.length} ejercicios · +{lesson.xpReward} XP</span>;
+  }
+
+  let actionLabel: string;
+  let actionButtonClass: string;
+  let actionButtonContent: React.ReactNode;
+  if (completed) {
+    actionLabel = 'Repasar';
+    actionButtonClass = 'bg-slate-100 text-slate-600 hover:bg-slate-200';
+    actionButtonContent = <><RotateCcw className="w-3.5 h-3.5" aria-hidden="true" />Repasar</>;
+  } else if (inProgress) {
+    actionLabel = 'Continuar';
+    actionButtonClass = 'bg-indigo-100 text-indigo-600 hover:bg-indigo-200';
+    actionButtonContent = <><Play className="w-3.5 h-3.5 fill-indigo-500" aria-hidden="true" />Continuar</>;
+  } else {
+    actionLabel = 'Iniciar';
+    actionButtonClass = 'bg-indigo-600 text-white hover:bg-indigo-700';
+    actionButtonContent = <><Play className="w-3.5 h-3.5 fill-white" aria-hidden="true" />Iniciar</>;
+  }
+
+  return (
+    <motion.div
+      initial={{ opacity: 0, y: 10 }}
+      animate={{ opacity: 1, y: 0 }}
+      transition={{ delay: idx * 0.04 }}
+    >
+      <div className={`bg-white rounded-2xl shadow-sm border transition-all overflow-hidden ${cardBorderClass}`}>
+        {/* Completed progress bar */}
+        {completed && (
+          <div className="h-1 bg-slate-50">
+            <div
+              className={`h-full ${lesson.colorClass}`}
+              style={{ width: '100%' }}
+            />
+          </div>
+        )}
+        {inProgress && (
+          <div className="h-1 bg-slate-50">
+            <div
+              className={`h-full ${lesson.colorClass} opacity-50`}
+              style={{ width: `${((progress?.exerciseIndex ?? 0) / lesson.exercises.length) * 100}%` }}
+            />
+          </div>
+        )}
+
+        <div className="p-4 flex items-center gap-3">
+          {/* Emoji icon */}
+          <div className={`w-12 h-12 ${locked ? 'bg-slate-200' : lesson.colorClass} rounded-2xl flex items-center justify-center text-xl flex-shrink-0 shadow-sm`} aria-hidden="true">
+            {locked ? <Lock className="w-5 h-5 text-slate-500" /> : lesson.emoji}
+          </div>
+
+          {/* Info */}
+          <div className="flex-1 min-w-0">
+            <div className="flex items-center gap-2 mb-0.5">
+              <span className={`text-xs px-1.5 py-0.5 rounded-full ${LEVEL_COLORS[lesson.level]}`} style={{ fontWeight: 600, fontSize: '0.75rem' }}>
+                {lesson.level}
+              </span>
+              <span className="text-slate-600" style={{ fontSize: '0.75rem' }}>{lesson.topic}</span>
+            </div>
+            <p className={`truncate ${locked ? 'text-slate-500' : 'text-slate-800'}`} style={{ fontWeight: 600, fontSize: '0.9rem' }}>
+              {lesson.title}
+            </p>
+            <div className="flex items-center gap-2 mt-0.5">
+              {statusContent}
+            </div>
+          </div>
+
+          {/* Actions */}
+          <div className="flex items-center gap-2 flex-shrink-0">
+            {/* Reset button (if completed or in progress) */}
+            {(completed || inProgress) && !locked && (
+              <>
+                {resetting === lesson.id ? (
+                  <div className="flex gap-1.5">
+                    <button
+                      onClick={(e) => onConfirmReset(e, lesson.id)}
+                      aria-label={`Confirmar reinicio de la lección ${lesson.title}`}
+                      className="text-red-600 hover:text-red-700 bg-red-50 rounded-lg px-2 py-1 transition-colors"
+                      style={{ fontSize: '0.7rem', fontWeight: 600 }}
+                    >
+                      ¿Seguro?
+                    </button>
+                    <button
+                      onClick={onCancelReset}
+                      aria-label={`Cancelar reinicio de la lección ${lesson.title}`}
+                      className="text-slate-500 hover:text-slate-700 bg-slate-50 rounded-lg px-2 py-1 transition-colors"
+                      style={{ fontSize: '0.7rem', fontWeight: 600 }}
+                    >
+                      No
+                    </button>
+                  </div>
+                ) : (
+                  <button
+                    onClick={(e) => { e.stopPropagation(); onStartReset(lesson.id); }}
+                    aria-label={`Reiniciar progreso de la lección ${lesson.title}`}
+                    className="w-8 h-8 flex items-center justify-center rounded-xl text-slate-500 hover:text-slate-700 hover:bg-slate-100 transition-colors"
+                  >
+                    <RotateCcw className="w-3.5 h-3.5" aria-hidden="true" />
+                  </button>
+                )}
+              </>
+            )}
+
+            {/* Start/Continue button */}
+            {!locked && resetting !== lesson.id && (
+              <button
+                onClick={() => navigate(`/exercise/${lesson.id}`)}
+                aria-label={`${actionLabel} lección ${lesson.title}, nivel ${lesson.level}`}
+                className={`flex items-center gap-1.5 px-3 py-2 rounded-xl transition-colors ${actionButtonClass}`}
+                style={{ fontWeight: 600, fontSize: '0.78rem' }}
+              >
+                {actionButtonContent}
+              </button>
+            )}
+
+            {locked && (
+              <div className="w-8 h-8 flex items-center justify-center">
+                <Lock className="w-4 h-4 text-slate-300" />
+              </div>
+            )}
+          </div>
+        </div>
+      </div>
+    </motion.div>
+  );
+}
+
+export function LessonList() {
+  const { resetLesson } = useApp();
   usePageTitle('Lecciones');
   const [levelFilter, setLevelFilter] = useState<LevelFilter>('all');
   const [topicFilter, setTopicFilter] = useState<TopicFilter>('all');
@@ -136,152 +308,17 @@ export function LessonList() {
             </button>
           </div>
         ) : (
-          filtered.map((lesson, idx) => {
-            const progress = state.lessonProgress[lesson.id];
-            const locked = isLessonLocked(lesson.id);
-            const completed = progress?.completed ?? false;
-            const inProgress = !completed && (progress?.exerciseIndex ?? 0) > 0;
-            const stars = progress?.stars ?? 0;
-            const score = progress?.score ?? 0;
-
-            return (
-              <motion.div
-                key={lesson.id}
-                initial={{ opacity: 0, y: 10 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ delay: idx * 0.04 }}
-              >
-                <div
-                  className={`bg-white rounded-2xl shadow-sm border transition-all overflow-hidden ${
-                    locked
-                      ? 'border-slate-200 bg-slate-50'
-                      : 'border-slate-100 hover:border-indigo-200 hover:shadow-md'
-                  }`}
-                >
-                  {/* Completed progress bar */}
-                  {completed && (
-                    <div className="h-1 bg-slate-50">
-                      <div
-                        className={`h-full ${lesson.colorClass}`}
-                        style={{ width: '100%' }}
-                      />
-                    </div>
-                  )}
-                  {inProgress && (
-                    <div className="h-1 bg-slate-50">
-                      <div
-                        className={`h-full ${lesson.colorClass} opacity-50`}
-                        style={{ width: `${((progress?.exerciseIndex ?? 0) / lesson.exercises.length) * 100}%` }}
-                      />
-                    </div>
-                  )}
-
-                  <div className="p-4 flex items-center gap-3">
-                    {/* Emoji icon */}
-                    <div className={`w-12 h-12 ${locked ? 'bg-slate-200' : lesson.colorClass} rounded-2xl flex items-center justify-center text-xl flex-shrink-0 shadow-sm`} aria-hidden="true">
-                      {locked ? <Lock className="w-5 h-5 text-slate-500" /> : lesson.emoji}
-                    </div>
-
-                    {/* Info */}
-                    <div className="flex-1 min-w-0">
-                      <div className="flex items-center gap-2 mb-0.5">
-                        <span className={`text-xs px-1.5 py-0.5 rounded-full ${LEVEL_COLORS[lesson.level]}`} style={{ fontWeight: 600, fontSize: '0.75rem' }}>
-                          {lesson.level}
-                        </span>
-                        <span className="text-slate-600" style={{ fontSize: '0.75rem' }}>{lesson.topic}</span>
-                      </div>
-                      <p className={`truncate ${locked ? 'text-slate-500' : 'text-slate-800'}`} style={{ fontWeight: 600, fontSize: '0.9rem' }}>
-                        {lesson.title}
-                      </p>
-                      <div className="flex items-center gap-2 mt-0.5">
-                        {completed ? (
-                          <>
-                            <StarRow count={stars} />
-                            <span className="text-slate-600" style={{ fontSize: '0.75rem' }}>{score}% aciertos · +{progress?.xpEarned ?? 0} XP</span>
-                          </>
-                        ) : inProgress ? (
-                          <span className="text-indigo-600" style={{ fontSize: '0.72rem', fontWeight: 600 }}>
-                            {Math.round(((progress?.exerciseIndex ?? 0) / lesson.exercises.length) * 100)}% completado
-                          </span>
-                        ) : locked ? (
-                          <span className="text-slate-500" style={{ fontSize: '0.72rem' }}>Bloqueado — completa la lección anterior</span>
-                        ) : (
-                          <span className="text-slate-600" style={{ fontSize: '0.72rem' }}>{lesson.exercises.length} ejercicios · +{lesson.xpReward} XP</span>
-                        )}
-                      </div>
-                    </div>
-
-                    {/* Actions */}
-                    <div className="flex items-center gap-2 flex-shrink-0">
-                      {/* Reset button (if completed or in progress) */}
-                      {(completed || inProgress) && !locked && (
-                        <>
-                          {resetting === lesson.id ? (
-                            <div className="flex gap-1.5">
-                              <button
-                                onClick={(e) => handleReset(e, lesson.id)}
-                                aria-label={`Confirmar reinicio de la lección ${lesson.title}`}
-                                className="text-red-600 hover:text-red-700 bg-red-50 rounded-lg px-2 py-1 transition-colors"
-                                style={{ fontSize: '0.7rem', fontWeight: 600 }}
-                              >
-                                ¿Seguro?
-                              </button>
-                              <button
-                                onClick={() => setResetting(null)}
-                                aria-label={`Cancelar reinicio de la lección ${lesson.title}`}
-                                className="text-slate-500 hover:text-slate-700 bg-slate-50 rounded-lg px-2 py-1 transition-colors"
-                                style={{ fontSize: '0.7rem', fontWeight: 600 }}
-                              >
-                                No
-                              </button>
-                            </div>
-                          ) : (
-                            <button
-                              onClick={(e) => { e.stopPropagation(); setResetting(lesson.id); }}
-                              aria-label={`Reiniciar progreso de la lección ${lesson.title}`}
-                              className="w-8 h-8 flex items-center justify-center rounded-xl text-slate-500 hover:text-slate-700 hover:bg-slate-100 transition-colors"
-                            >
-                              <RotateCcw className="w-3.5 h-3.5" aria-hidden="true" />
-                            </button>
-                          )}
-                        </>
-                      )}
-
-                      {/* Start/Continue button */}
-                      {!locked && resetting !== lesson.id && (
-                        <button
-                          onClick={() => navigate(`/exercise/${lesson.id}`)}
-                          aria-label={`${completed ? 'Repasar' : inProgress ? 'Continuar' : 'Iniciar'} lección ${lesson.title}, nivel ${lesson.level}`}
-                          className={`flex items-center gap-1.5 px-3 py-2 rounded-xl transition-colors ${
-                            completed
-                              ? 'bg-slate-100 text-slate-600 hover:bg-slate-200'
-                              : inProgress
-                              ? 'bg-indigo-100 text-indigo-600 hover:bg-indigo-200'
-                              : 'bg-indigo-600 text-white hover:bg-indigo-700'
-                          }`}
-                          style={{ fontWeight: 600, fontSize: '0.78rem' }}
-                        >
-                          {completed ? (
-                            <><RotateCcw className="w-3.5 h-3.5" aria-hidden="true" />Repasar</>
-                          ) : inProgress ? (
-                            <><Play className="w-3.5 h-3.5 fill-indigo-500" aria-hidden="true" />Continuar</>
-                          ) : (
-                            <><Play className="w-3.5 h-3.5 fill-white" aria-hidden="true" />Iniciar</>
-                          )}
-                        </button>
-                      )}
-
-                      {locked && (
-                        <div className="w-8 h-8 flex items-center justify-center">
-                          <Lock className="w-4 h-4 text-slate-300" />
-                        </div>
-                      )}
-                    </div>
-                  </div>
-                </div>
-              </motion.div>
-            );
-          })
+          filtered.map((lesson, idx) => (
+            <LessonCard
+              key={lesson.id}
+              lesson={lesson}
+              idx={idx}
+              resetting={resetting}
+              onStartReset={setResetting}
+              onConfirmReset={handleReset}
+              onCancelReset={() => setResetting(null)}
+            />
+          ))
         )}
       </div>
     </div>
