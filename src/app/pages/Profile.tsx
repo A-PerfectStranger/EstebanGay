@@ -52,6 +52,7 @@ export function Profile() {
                     if (e.key === 'Escape') { setEditingName(false); }
                   }}
                   aria-label="Editar tu nombre"
+                  autoComplete="name"
                   className="bg-white/20 rounded-xl px-3 py-1.5 text-white placeholder-white/50 outline-none border border-white/30 focus:border-white"
                   style={{ fontWeight: 600, fontSize: '0.95rem', width: '150px' }}
                   autoFocus
