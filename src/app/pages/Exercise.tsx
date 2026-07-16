@@ -54,10 +54,6 @@ function MultipleChoice({
 
   return (
     <div className="space-y-3">
-      {/* Anuncio para lectores de pantalla: el color nunca es la única señal de acierto/error. */}
-      <p className="sr-only" role="status" aria-live="assertive">
-        {selected && (selected === exercise.correctAnswer ? 'Correcto' : `Incorrecto. La respuesta correcta es ${exercise.correctAnswer}`)}
-      </p>
       {exercise.options!.map(opt => {
         const isChosenRight = selected === opt && opt === exercise.correctAnswer;
         const isChosenWrong = selected === opt && opt !== exercise.correctAnswer;
@@ -133,7 +129,7 @@ function FillBlank({
 
   let blankClass: string;
   if (!chosen) {
-    blankClass = 'border-dashed border-slate-300 bg-white text-slate-400';
+    blankClass = 'border-dashed border-slate-300 bg-white text-slate-500';
   } else if (submitted && isCorrect) {
     blankClass = 'border-green-400 bg-green-100 text-green-800';
   } else if (submitted && !isCorrect) {
@@ -506,6 +502,23 @@ function Speaking({
 }
 
 // ─────────────────────────────────────────────
+// Exercise heading — se autoenfoca al montar (nuevo ejercicio) para no perder
+// el foco de teclado cuando el botón "Continuar" desaparece del DOM (WCAG 2.4.3).
+// ─────────────────────────────────────────────
+function ExerciseHeading({ instruction, autoFocus }: Readonly<{ instruction: string; autoFocus: boolean }>) {
+  const ref = useRef<HTMLHeadingElement>(null);
+  useEffect(() => {
+    if (autoFocus) ref.current?.focus();
+  }, []); // eslint-disable-line react-hooks/exhaustive-deps
+
+  return (
+    <h1 ref={ref} tabIndex={-1} className="text-slate-800 mb-1 outline-none" style={{ fontWeight: 700, fontSize: '1.1rem' }}>
+      {instruction}
+    </h1>
+  );
+}
+
+// ─────────────────────────────────────────────
 // Feedback Panel
 // ─────────────────────────────────────────────
 function FeedbackPanel({
@@ -529,6 +542,15 @@ function FeedbackPanel({
   } else {
     feedbackMessage = '¡Casi! Revisa la explicación';
   }
+
+  // El botón que el usuario acaba de pulsar (Comprobar / opción de respuesta) se
+  // deshabilita o desaparece del DOM al llegar aquí, así que el foco de teclado
+  // cae al <body>. Lo recuperamos sobre "Continuar" para no perder el orden de
+  // tabulación (WCAG 2.4.3) ni obligar a recorrer la página desde el principio.
+  const continueBtnRef = useRef<HTMLButtonElement>(null);
+  useEffect(() => {
+    continueBtnRef.current?.focus();
+  }, []);
 
   return (
     <motion.div
@@ -574,6 +596,7 @@ function FeedbackPanel({
 
         {/* Continue */}
         <button
+          ref={continueBtnRef}
           onClick={onContinue}
           className={`w-full py-3.5 rounded-2xl flex items-center justify-center gap-2 transition-colors ${
             isCorrect
@@ -623,6 +646,14 @@ export function Exercise() {
   const [exerciseKey, setExerciseKey] = useState(0);
 
   const timerRef = useRef<ReturnType<typeof setInterval> | null>(null);
+  // AnimatePresence (mode="wait") retrasa el montaje del siguiente ejercicio hasta
+  // que el anterior termina de salir, así que fijar el foco en un efecto atado a
+  // exerciseKey en este componente no sirve: el nodo nuevo aún no existe cuando se
+  // ejecuta. ExerciseHeading se enfoca a sí mismo en su propio montaje en su lugar;
+  // esta bandera solo evita el autofoco en la primera carga de la lección.
+  const hasRenderedExerciseRef = useRef(false);
+  const autoFocusHeading = hasRenderedExerciseRef.current;
+  hasRenderedExerciseRef.current = true;
 
   const startTimer = useCallback(() => {
     if (timerRef.current) clearInterval(timerRef.current);
@@ -825,9 +856,7 @@ export function Exercise() {
               </div>
 
               {/* Instruction */}
-              <h1 className="text-slate-800 mb-1" style={{ fontWeight: 700, fontSize: '1.1rem' }}>
-                {current.instruction}
-              </h1>
+              <ExerciseHeading instruction={current.instruction} autoFocus={autoFocusHeading} />
 
               {/* Question (for MC & translate show it; fill-blank/word-order show sentence) */}
               {current.question && current.type !== 'translate' && (

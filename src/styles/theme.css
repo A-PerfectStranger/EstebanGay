@@ -181,9 +181,15 @@
 }
 
 /* ── Accesibilidad: foco visible, saltar contenido, alto contraste, movimiento reducido ── */
+/* Anillo doble (blanco + índigo oscuro) en vez de un único color de foco:
+   #7a5cff contra bg-indigo-600/gradientes de marca da ~1.4:1, muy por debajo
+   del 3:1 que exige WCAG 2.2 2.4.11 (Apariencia del foco). Con dos anillos de
+   luminancia opuesta, al menos uno siempre contrasta ≥3:1 contra cualquier
+   fondo de la app, claro u oscuro. */
 :focus-visible {
-  outline: 3px solid #7a5cff;
-  outline-offset: 3px;
+  outline: 3px solid #ffffff;
+  outline-offset: 2px;
+  box-shadow: 0 0 0 5px #1e1b4b;
   border-radius: 6px;
 }
 
@@ -226,6 +232,7 @@ html.high-contrast .text-slate-800 {
 }
 html.high-contrast :focus-visible {
   outline-color: #ffd85e;
+  box-shadow: 0 0 0 5px #000;
 }
 
 @media (prefers-reduced-motion: reduce) {
