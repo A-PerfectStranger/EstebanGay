@@ -119,8 +119,8 @@ export function Onboarding() {
 
             {/* Features */}
             <div className="p-6 space-y-3">
-              {slide.features.map((f, i) => (
-                <div key={i} className="flex items-center gap-3 bg-slate-50 rounded-xl px-4 py-3">
+              {slide.features.map((f) => (
+                <div key={f.text} className="flex items-center gap-3 bg-slate-50 rounded-xl px-4 py-3">
                   <div className="text-indigo-500 flex-shrink-0" aria-hidden="true">{f.icon}</div>
                   <span className="text-slate-700" style={{ fontSize: '0.85rem', fontWeight: 500 }}>{f.text}</span>
                 </div>
@@ -133,7 +133,7 @@ export function Onboarding() {
         <div className="flex justify-center gap-2 mb-6" role="tablist" aria-label="Progreso de bienvenida">
           {slides.map((s, i) => (
             <button
-              key={i}
+              key={s.title}
               onClick={() => setCurrent(i)}
               role="tab"
               aria-selected={i === current}

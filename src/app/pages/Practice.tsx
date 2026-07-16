@@ -1,7 +1,6 @@
-import { useState } from 'react';
 import { useNavigate } from 'react-router';
 import { motion } from 'motion/react';
-import { Dumbbell, Play, Lock, ChevronRight, Shuffle } from 'lucide-react';
+import { Dumbbell, Play, ChevronRight } from 'lucide-react';
 import { useApp } from '../context/AppContext';
 import { units } from '../data/lessons';
 import { usePageTitle } from '../hooks/usePageTitle';
@@ -57,7 +56,8 @@ export function Practice() {
               if (!pt.available) return;
               if (pt.id === 'next') navigate('/lessons');
               if (pt.id === 'review') {
-                const random = completed[Math.floor(Math.random() * completed.length)];
+                const randomIndex = crypto.getRandomValues(new Uint32Array(1))[0] % completed.length;
+                const random = completed[randomIndex];
                 if (random) navigate(`/exercise/${random.id}`);
               }
             }}
@@ -110,7 +110,7 @@ export function Practice() {
                     {isCompleted ? (
                       <div className="flex" role="img" aria-label={`${progress?.stars ?? 0} de 3 estrellas`}>
                         {[1,2,3].map(i => (
-                          <span key={i} aria-hidden="true" className={`text-xs ${i <= (progress?.stars ?? 0) ? 'text-amber-400' : 'text-slate-200'}`}>★</span>
+                          <span key={`star-${i}`} aria-hidden="true" className={`text-xs ${i <= (progress?.stars ?? 0) ? 'text-amber-400' : 'text-slate-200'}`}>★</span>
                         ))}
                       </div>
                     ) : (

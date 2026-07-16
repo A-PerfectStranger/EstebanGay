@@ -14,7 +14,7 @@ export function Profile() {
   const level = getLevel(state.user.xp);
   const xpInfo = getXpProgress(state.user.xp);
   const completedCount = Object.values(state.lessonProgress).filter(p => p.completed).length;
-  const totalStars = Object.values(state.lessonProgress).reduce((acc, p) => acc + (p.stars ?? 0), 0);
+  const totalStars: number = Object.values(state.lessonProgress).reduce((acc: number, p) => acc + (p.stars ?? 0), 0);
   const hours = Math.floor(state.user.totalMinutes / 60);
   const mins = state.user.totalMinutes % 60;
 
@@ -47,7 +47,10 @@ export function Profile() {
                 <input
                   value={nameVal}
                   onChange={e => setNameVal(e.target.value)}
-                  onKeyDown={e => { if (e.key === 'Enter') saveName(); if (e.key === 'Escape') setEditingName(false); }}
+                  onKeyDown={e => {
+                    if (e.key === 'Enter') { saveName(); }
+                    if (e.key === 'Escape') { setEditingName(false); }
+                  }}
                   aria-label="Editar tu nombre"
                   className="bg-white/20 rounded-xl px-3 py-1.5 text-white placeholder-white/50 outline-none border border-white/30 focus:border-white"
                   style={{ fontWeight: 600, fontSize: '0.95rem', width: '150px' }}
@@ -79,15 +82,10 @@ export function Profile() {
             <span style={{ fontSize: '0.72rem', fontWeight: 600 }}>Progreso al siguiente nivel</span>
             <span style={{ fontSize: '0.72rem' }} className="text-indigo-100">{xpInfo.current}/{xpInfo.needed} XP</span>
           </div>
-          <div
-            className="h-2.5 bg-white/20 rounded-full overflow-hidden"
-            role="progressbar"
-            aria-label="Progreso al siguiente nivel"
-            aria-valuenow={xpInfo.percent}
-            aria-valuemin={0}
-            aria-valuemax={100}
-            aria-valuetext={`${xpInfo.current} de ${xpInfo.needed} XP`}
-          >
+          <progress className="sr-only" value={xpInfo.percent} max={100} aria-label="Progreso al siguiente nivel">
+            {xpInfo.current} de {xpInfo.needed} XP
+          </progress>
+          <div className="h-2.5 bg-white/20 rounded-full overflow-hidden" aria-hidden="true">
             <div className="h-full bg-white rounded-full transition-all" style={{ width: `${xpInfo.percent}%` }} />
           </div>
         </div>

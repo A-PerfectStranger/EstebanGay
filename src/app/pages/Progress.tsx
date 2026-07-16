@@ -1,11 +1,11 @@
 import { motion } from 'motion/react';
-import { BarChart2, Flame, Clock, Trophy, Target, TrendingUp, Star, Zap } from 'lucide-react';
-import { RadialBarChart, RadialBar, ResponsiveContainer, Tooltip } from 'recharts';
+import { BarChart2, Flame, Clock, Trophy, Target, TrendingUp, Star } from 'lucide-react';
+import { RadialBarChart, RadialBar, ResponsiveContainer } from 'recharts';
 import { useApp, getLevel, getXpProgress } from '../context/AppContext';
 import { units } from '../data/lessons';
 import { usePageTitle } from '../hooks/usePageTitle';
 
-function MiniStars({ count }: { count: number }) {
+function MiniStars({ count }: Readonly<{ count: number }>) {
   return (
     <span role="img" aria-label={`${count} de 3 estrellas`}>
       {[1,2,3].map(i => (
@@ -23,7 +23,7 @@ export function Progress() {
 
   const allLessons = units.flatMap(u => u.lessons);
   const completedLessons = allLessons.filter(l => state.lessonProgress[l.id]?.completed);
-  const totalStars = Object.values(state.lessonProgress).reduce((acc, p) => acc + (p.stars ?? 0), 0);
+  const totalStars: number = Object.values(state.lessonProgress).reduce((acc: number, p) => acc + (p.stars ?? 0), 0);
   const maxStars = allLessons.length * 3;
   const avgScore = completedLessons.length > 0
     ? Math.round(completedLessons.reduce((acc, l) => acc + (state.lessonProgress[l.id]?.score ?? 0), 0) / completedLessons.length)
@@ -96,15 +96,10 @@ export function Progress() {
             <p className="text-white mb-1" style={{ fontWeight: 700, fontSize: '1.1rem' }}>{state.user.name}</p>
             <p className="text-indigo-100" style={{ fontSize: '0.78rem' }}>{state.user.xp.toLocaleString()} XP · {completedLessons.length}/{allLessons.length} lecciones</p>
             {/* XP bar */}
-            <div
-              className="mt-2 h-1.5 bg-white/20 rounded-full overflow-hidden"
-              role="progressbar"
-              aria-label="Progreso hacia el siguiente nivel"
-              aria-valuenow={xpInfo.percent}
-              aria-valuemin={0}
-              aria-valuemax={100}
-              aria-valuetext={`${xpInfo.current} de ${xpInfo.needed} XP`}
-            >
+            <progress className="sr-only" value={xpInfo.percent} max={100} aria-label="Progreso hacia el siguiente nivel">
+              {xpInfo.current} de {xpInfo.needed} XP
+            </progress>
+            <div className="mt-2 h-1.5 bg-white/20 rounded-full overflow-hidden" aria-hidden="true">
               <div className="h-full bg-white rounded-full" style={{ width: `${xpInfo.percent}%` }} />
             </div>
             <p className="text-indigo-100 mt-1" style={{ fontSize: '0.75rem' }}>{xpInfo.current}/{xpInfo.needed} XP para siguiente nivel</p>
@@ -157,15 +152,10 @@ export function Progress() {
                 </div>
                 <span className="text-slate-500" style={{ fontSize: '0.75rem', fontWeight: 600 }}>{u.done}/{u.total}</span>
               </div>
-              <div
-                className="h-2 bg-slate-100 rounded-full overflow-hidden"
-                role="progressbar"
-                aria-label={`Progreso de ${u.subtitle}`}
-                aria-valuenow={u.pct}
-                aria-valuemin={0}
-                aria-valuemax={100}
-                aria-valuetext={`${u.done} de ${u.total} lecciones completadas`}
-              >
+              <progress className="sr-only" value={u.pct} max={100} aria-label={`Progreso de ${u.subtitle}`}>
+                {u.done} de {u.total} lecciones completadas
+              </progress>
+              <div className="h-2 bg-slate-100 rounded-full overflow-hidden" aria-hidden="true">
                 <motion.div
                   initial={{ width: 0 }}
                   animate={{ width: `${u.pct}%` }}

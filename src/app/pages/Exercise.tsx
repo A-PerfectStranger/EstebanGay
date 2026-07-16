@@ -18,16 +18,32 @@ function checkAnswer(userAns: string, correct: string, accepted?: string[]): boo
   return [correct, ...(accepted ?? [])].map(normalise).includes(n);
 }
 
+// Shared text-answer submission logic for Translate & Speaking
+function useTextAnswer(exercise: ExerciseItem, onAnswer: (answer: string) => void) {
+  const [value, setValue] = useState('');
+  const [submitted, setSubmitted] = useState(false);
+
+  const submit = () => {
+    if (!value.trim() || submitted) return;
+    setSubmitted(true);
+    onAnswer(value.trim());
+  };
+
+  const isCorrect = checkAnswer(value, exercise.correctAnswer, exercise.acceptedAnswers);
+
+  return { value, setValue, submitted, submit, isCorrect };
+}
+
 // ─────────────────────────────────────────────
 // Multiple Choice
 // ─────────────────────────────────────────────
 function MultipleChoice({
   exercise,
   onAnswer,
-}: {
+}: Readonly<{
   exercise: ExerciseItem;
   onAnswer: (answer: string) => void;
-}) {
+}>) {
   const [selected, setSelected] = useState<string | null>(null);
 
   const pick = (opt: string) => {
@@ -46,30 +62,32 @@ function MultipleChoice({
         const isChosenRight = selected === opt && opt === exercise.correctAnswer;
         const isChosenWrong = selected === opt && opt !== exercise.correctAnswer;
         const isRevealedCorrect = !!selected && !isChosenRight && opt === exercise.correctAnswer;
+
+        let optionClass: string;
+        let indicatorClass: string;
+        if (isChosenRight || isRevealedCorrect) {
+          optionClass = 'border-green-400 bg-green-50 text-green-800';
+          indicatorClass = 'border-green-500 bg-green-500';
+        } else if (isChosenWrong) {
+          optionClass = 'border-red-400 bg-red-50 text-red-800';
+          indicatorClass = 'border-red-400 bg-red-400';
+        } else {
+          optionClass = 'border-slate-200 bg-white hover:border-indigo-300 hover:bg-indigo-50 text-slate-700';
+          indicatorClass = 'border-slate-300';
+        }
+
         return (
           <button
             key={opt}
             onClick={() => pick(opt)}
             disabled={!!selected}
             lang="en"
-            className={`w-full text-left p-4 rounded-2xl border-2 transition-all ${
-              isChosenRight || isRevealedCorrect
-                ? 'border-green-400 bg-green-50 text-green-800'
-                : isChosenWrong
-                ? 'border-red-400 bg-red-50 text-red-800'
-                : 'border-slate-200 bg-white hover:border-indigo-300 hover:bg-indigo-50 text-slate-700'
-            }`}
+            className={`w-full text-left p-4 rounded-2xl border-2 transition-all ${optionClass}`}
             style={{ fontWeight: 500 }}
           >
             <div className="flex items-center gap-3">
               <div
-                className={`w-5 h-5 rounded-full border-2 flex items-center justify-center flex-shrink-0 ${
-                  isChosenRight || isRevealedCorrect
-                    ? 'border-green-500 bg-green-500'
-                    : isChosenWrong
-                    ? 'border-red-400 bg-red-400'
-                    : 'border-slate-300'
-                }`}
+                className={`w-5 h-5 rounded-full border-2 flex items-center justify-center flex-shrink-0 ${indicatorClass}`}
               >
                 {(isChosenRight || isRevealedCorrect) && <CheckCircle2 className="w-3.5 h-3.5 text-white" aria-hidden="true" />}
                 {isChosenWrong && <XCircle className="w-3.5 h-3.5 text-white" aria-hidden="true" />}
@@ -91,10 +109,10 @@ function MultipleChoice({
 function FillBlank({
   exercise,
   onAnswer,
-}: {
+}: Readonly<{
   exercise: ExerciseItem;
   onAnswer: (answer: string) => void;
-}) {
+}>) {
   const [chosen, setChosen] = useState<string | null>(null);
   const [submitted, setSubmitted] = useState(false);
 
@@ -113,21 +131,24 @@ function FillBlank({
   const parts = exercise.sentence!.split('[BLANK]');
   const isCorrect = chosen === exercise.correctAnswer;
 
+  let blankClass: string;
+  if (!chosen) {
+    blankClass = 'border-dashed border-slate-300 bg-white text-slate-400';
+  } else if (submitted && isCorrect) {
+    blankClass = 'border-green-400 bg-green-100 text-green-800';
+  } else if (submitted && !isCorrect) {
+    blankClass = 'border-red-400 bg-red-100 text-red-800';
+  } else {
+    blankClass = 'border-indigo-400 bg-indigo-100 text-indigo-800';
+  }
+
   return (
     <div className="space-y-5">
       {/* Sentence with blank */}
       <div className="bg-slate-50 rounded-2xl p-4 text-center" lang="en" style={{ fontSize: '1rem', lineHeight: 1.6, color: '#1e293b', fontWeight: 500 }}>
         {parts[0]}
         <span
-          className={`inline-block min-w-[80px] px-3 py-0.5 mx-1 rounded-lg border-2 transition-colors ${
-            !chosen
-              ? 'border-dashed border-slate-300 bg-white text-slate-400'
-              : submitted && isCorrect
-              ? 'border-green-400 bg-green-100 text-green-800'
-              : submitted && !isCorrect
-              ? 'border-red-400 bg-red-100 text-red-800'
-              : 'border-indigo-400 bg-indigo-100 text-indigo-800'
-          }`}
+          className={`inline-block min-w-[80px] px-3 py-0.5 mx-1 rounded-lg border-2 transition-colors ${blankClass}`}
           style={{ fontWeight: 600 }}
         >
           {chosen ?? '___'}
@@ -137,27 +158,30 @@ function FillBlank({
 
       {/* Word bank */}
       <div className="flex flex-wrap gap-2 justify-center" lang="en">
-        {exercise.wordBank!.map(word => (
-          <button
-            key={word}
-            onClick={() => pick(word)}
-            disabled={submitted}
-            className={`px-4 py-2 rounded-xl border-2 transition-all ${
-              chosen === word
-                ? submitted
-                  ? isCorrect
-                    ? 'border-green-400 bg-green-100 text-green-800'
-                    : 'border-red-400 bg-red-100 text-red-800'
-                  : 'border-indigo-400 bg-indigo-100 text-indigo-700'
-                : submitted
-                ? 'border-slate-200 bg-slate-100 text-slate-400 opacity-50'
-                : 'border-slate-200 bg-white text-slate-700 hover:border-indigo-300 hover:bg-indigo-50'
-            }`}
-            style={{ fontWeight: 500 }}
-          >
-            {word}
-          </button>
-        ))}
+        {exercise.wordBank!.map(word => {
+          const isChosenWord = chosen === word;
+          let wordClass: string;
+          if (isChosenWord && submitted) {
+            wordClass = isCorrect ? 'border-green-400 bg-green-100 text-green-800' : 'border-red-400 bg-red-100 text-red-800';
+          } else if (isChosenWord) {
+            wordClass = 'border-indigo-400 bg-indigo-100 text-indigo-700';
+          } else if (submitted) {
+            wordClass = 'border-slate-200 bg-slate-100 text-slate-400 opacity-50';
+          } else {
+            wordClass = 'border-slate-200 bg-white text-slate-700 hover:border-indigo-300 hover:bg-indigo-50';
+          }
+          return (
+            <button
+              key={word}
+              onClick={() => pick(word)}
+              disabled={submitted}
+              className={`px-4 py-2 rounded-xl border-2 transition-all ${wordClass}`}
+              style={{ fontWeight: 500 }}
+            >
+              {word}
+            </button>
+          );
+        })}
       </div>
 
       {/* Submit */}
@@ -185,10 +209,10 @@ function FillBlank({
 function WordOrder({
   exercise,
   onAnswer,
-}: {
+}: Readonly<{
   exercise: ExerciseItem;
   onAnswer: (answer: string) => void;
-}) {
+}>) {
   const [available, setAvailable] = useState<string[]>([...(exercise.wordBank ?? [])]);
   const [selected, setSelected] = useState<string[]>([]);
   const [submitted, setSubmitted] = useState(false);
@@ -215,42 +239,45 @@ function WordOrder({
   const userAnswer = selected.join(' ');
   const isCorrect = checkAnswer(userAnswer, exercise.correctAnswer);
 
+  let answerAreaClass: string;
+  if (submitted) {
+    answerAreaClass = isCorrect ? 'border-green-400 bg-green-50' : 'border-red-400 bg-red-50';
+  } else {
+    answerAreaClass = 'border-dashed border-slate-300';
+  }
+
   return (
     <div className="space-y-5">
       {/* Answer area */}
       <div
-        className={`min-h-[3.5rem] bg-white rounded-2xl border-2 p-3 flex flex-wrap gap-2 transition-colors ${
-          submitted
-            ? isCorrect
-              ? 'border-green-400 bg-green-50'
-              : 'border-red-400 bg-red-50'
-            : 'border-dashed border-slate-300'
-        }`}
+        className={`min-h-[3.5rem] bg-white rounded-2xl border-2 p-3 flex flex-wrap gap-2 transition-colors ${answerAreaClass}`}
       >
         {selected.length === 0 && (
           <span className="text-slate-500 self-center mx-auto" style={{ fontSize: '0.85rem' }}>
             Toca las palabras para ordenarlas
           </span>
         )}
-        {selected.map((word, i) => (
-          <button
-            key={`${word}-${i}`}
-            onClick={() => removeWord(i)}
-            disabled={submitted}
-            lang="en"
-            aria-label={`Quitar la palabra ${word} de tu respuesta`}
-            className={`px-3 py-1.5 rounded-xl border-2 transition-all ${
-              submitted
-                ? isCorrect
-                  ? 'border-green-400 bg-green-100 text-green-800'
-                  : 'border-red-300 bg-red-100 text-red-800'
-                : 'border-indigo-300 bg-indigo-100 text-indigo-700 hover:bg-indigo-200'
-            }`}
-            style={{ fontWeight: 600 }}
-          >
-            {word}
-          </button>
-        ))}
+        {selected.map((word, i) => {
+          let selectedWordClass: string;
+          if (submitted) {
+            selectedWordClass = isCorrect ? 'border-green-400 bg-green-100 text-green-800' : 'border-red-300 bg-red-100 text-red-800';
+          } else {
+            selectedWordClass = 'border-indigo-300 bg-indigo-100 text-indigo-700 hover:bg-indigo-200';
+          }
+          return (
+            <button
+              key={`${word}-${i}`}
+              onClick={() => removeWord(i)}
+              disabled={submitted}
+              lang="en"
+              aria-label={`Quitar la palabra ${word} de tu respuesta`}
+              className={`px-3 py-1.5 rounded-xl border-2 transition-all ${selectedWordClass}`}
+              style={{ fontWeight: 600 }}
+            >
+              {word}
+            </button>
+          );
+        })}
       </div>
 
       {/* Separator */}
@@ -301,25 +328,23 @@ function WordOrder({
 function Translate({
   exercise,
   onAnswer,
-}: {
+}: Readonly<{
   exercise: ExerciseItem;
   onAnswer: (answer: string) => void;
-}) {
-  const [value, setValue] = useState('');
-  const [submitted, setSubmitted] = useState(false);
+}>) {
+  const { value, setValue, submitted, submit, isCorrect } = useTextAnswer(exercise, onAnswer);
   const ref = useRef<HTMLTextAreaElement>(null);
 
   useEffect(() => {
     ref.current?.focus();
   }, []);
 
-  const submit = () => {
-    if (!value.trim() || submitted) return;
-    setSubmitted(true);
-    onAnswer(value.trim());
-  };
-
-  const isCorrect = checkAnswer(value, exercise.correctAnswer, exercise.acceptedAnswers);
+  let textareaClass: string;
+  if (submitted) {
+    textareaClass = isCorrect ? 'border-green-400 bg-green-50 text-green-800' : 'border-red-400 bg-red-50 text-red-800';
+  } else {
+    textareaClass = 'border-slate-200 bg-white text-slate-800 focus:border-indigo-400';
+  }
 
   return (
     <div className="space-y-4">
@@ -338,13 +363,7 @@ function Translate({
         aria-label="Escribe tu respuesta en inglés"
         lang="en"
         disabled={submitted}
-        className={`w-full rounded-2xl border-2 p-4 resize-none outline-none transition-colors placeholder:text-slate-500 ${
-          submitted
-            ? isCorrect
-              ? 'border-green-400 bg-green-50 text-green-800'
-              : 'border-red-400 bg-red-50 text-red-800'
-            : 'border-slate-200 bg-white text-slate-800 focus:border-indigo-400'
-        }`}
+        className={`w-full rounded-2xl border-2 p-4 resize-none outline-none transition-colors placeholder:text-slate-500 ${textareaClass}`}
         rows={3}
         style={{ fontWeight: 500 }}
       />
@@ -374,12 +393,11 @@ function Translate({
 function Speaking({
   exercise,
   onAnswer,
-}: {
+}: Readonly<{
   exercise: ExerciseItem;
   onAnswer: (answer: string) => void;
-}) {
-  const [value, setValue] = useState('');
-  const [submitted, setSubmitted] = useState(false);
+}>) {
+  const { value, setValue, submitted, submit, isCorrect } = useTextAnswer(exercise, onAnswer);
   const [listening, setListening] = useState(false);
   const [status, setStatus] = useState('');
   const [showFallback, setShowFallback] = useState(false);
@@ -416,13 +434,12 @@ function Speaking({
     recognizer.start();
   };
 
-  const submit = () => {
-    if (!value.trim() || submitted) return;
-    setSubmitted(true);
-    onAnswer(value.trim());
-  };
-
-  const isCorrect = checkAnswer(value, exercise.correctAnswer, exercise.acceptedAnswers);
+  let fallbackInputClass: string;
+  if (submitted) {
+    fallbackInputClass = isCorrect ? 'border-green-400 bg-green-50 text-green-800' : 'border-red-400 bg-red-50 text-red-800';
+  } else {
+    fallbackInputClass = 'border-slate-200 bg-white text-slate-800 focus:border-indigo-400';
+  }
 
   return (
     <div className="space-y-4">
@@ -468,11 +485,7 @@ function Speaking({
           disabled={submitted}
           aria-label="Escribe la oración en inglés"
           placeholder="Escribe la oración aquí..."
-          className={`mt-3 w-full rounded-xl border-2 p-3 outline-none transition-colors ${
-            submitted
-              ? isCorrect ? 'border-green-400 bg-green-50 text-green-800' : 'border-red-400 bg-red-50 text-red-800'
-              : 'border-slate-200 bg-white text-slate-800 focus:border-indigo-400'
-          }`}
+          className={`mt-3 w-full rounded-xl border-2 p-3 outline-none transition-colors ${fallbackInputClass}`}
         />
       </details>
 
@@ -501,13 +514,22 @@ function FeedbackPanel({
   userAnswer,
   isAlternate,
   onContinue,
-}: {
+}: Readonly<{
   isCorrect: boolean;
   exercise: ExerciseItem;
   userAnswer: string;
   isAlternate: boolean;
   onContinue: () => void;
-}) {
+}>) {
+  let feedbackMessage: string;
+  if (isCorrect && isAlternate) {
+    feedbackMessage = '¡Tu respuesta también es correcta! ✨';
+  } else if (isCorrect) {
+    feedbackMessage = '¡Correcto! 🎉';
+  } else {
+    feedbackMessage = '¡Casi! Revisa la explicación';
+  }
+
   return (
     <motion.div
       initial={{ y: '100%' }}
@@ -531,10 +553,7 @@ function FeedbackPanel({
           </div>
           <div className="flex-1">
             <p className={`${isCorrect ? 'text-green-700' : 'text-red-700'}`} style={{ fontWeight: 700, fontSize: '0.95rem' }}>
-              {isCorrect
-                ? isAlternate ? '¡Tu respuesta también es correcta! ✨' : '¡Correcto! 🎉'
-                : '¡Casi! Revisa la explicación'
-              }
+              {feedbackMessage}
             </p>
             {!isCorrect && (
               <div className="mt-1 space-y-0.5">
@@ -661,7 +680,14 @@ export function Exercise() {
       // All done → navigate to results
       // correctCount & errors already reflect the last answer (state was updated before user clicked Continue)
       const finalScore = Math.round((correctCount / exercises.length) * 100);
-      const stars = finalScore >= 90 ? 3 : finalScore >= 60 ? 2 : 1;
+      let stars: number;
+      if (finalScore >= 90) {
+        stars = 3;
+      } else if (finalScore >= 60) {
+        stars = 2;
+      } else {
+        stars = 1;
+      }
       const baseXp = lesson.xpReward;
       const bonusXp = finalScore === 100 ? 25 : 0;
       const xpEarned = Math.round((finalScore / 100) * baseXp) + bonusXp;
@@ -760,18 +786,22 @@ export function Exercise() {
         {/* Exercise counter */}
         <div className="pb-2 px-4 flex justify-center">
           <div className="flex items-center gap-1.5" aria-hidden="true">
-            {exercises.map((_, i) => (
-              <div
-                key={i}
-                className={`rounded-full transition-all duration-300 ${
-                  i < exerciseIdx
-                    ? 'w-2 h-2 bg-indigo-400'
-                    : i === exerciseIdx
-                    ? 'w-3 h-3 bg-indigo-600'
-                    : 'w-2 h-2 bg-slate-200'
-                }`}
-              />
-            ))}
+            {exercises.map((exercise, i) => {
+              let dotClass: string;
+              if (i < exerciseIdx) {
+                dotClass = 'w-2 h-2 bg-indigo-400';
+              } else if (i === exerciseIdx) {
+                dotClass = 'w-3 h-3 bg-indigo-600';
+              } else {
+                dotClass = 'w-2 h-2 bg-slate-200';
+              }
+              return (
+                <div
+                  key={exercise.id}
+                  className={`rounded-full transition-all duration-300 ${dotClass}`}
+                />
+              );
+            })}
           </div>
         </div>
       </header>
