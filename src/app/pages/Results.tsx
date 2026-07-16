@@ -17,7 +17,7 @@ interface ResultState {
   correctCount: number;
 }
 
-function StarDisplay({ count }: { count: number }) {
+function StarDisplay({ count }: Readonly<{ count: number }>) {
   return (
     <div className="flex gap-2 justify-center" role="img" aria-label={`Has ganado ${count} de 3 estrellas`}>
       {[1, 2, 3].map(i => (
@@ -34,6 +34,25 @@ function StarDisplay({ count }: { count: number }) {
       ))}
     </div>
   );
+}
+
+function getScoreBg(score: number): string {
+  if (score >= 80) return 'from-green-700 to-emerald-800';
+  if (score >= 60) return 'from-amber-700 to-orange-800';
+  return 'from-red-700 to-rose-800';
+}
+
+function getScoreRing(score: number): string {
+  if (score >= 80) return 'ring-green-300';
+  if (score >= 60) return 'ring-amber-300';
+  return 'ring-red-300';
+}
+
+function getScoreMessage(score: number): string {
+  if (score === 100) return '¡Perfecto! 🏆';
+  if (score >= 80) return '¡Excelente! 🎉';
+  if (score >= 60) return '¡Bien hecho! 👍';
+  return 'Sigue practicando 💪';
 }
 
 export function Results() {
@@ -84,10 +103,9 @@ export function Results() {
     navigate('/lessons');
   };
 
-  const scoreColor = score >= 80 ? 'text-green-600' : score >= 60 ? 'text-amber-500' : 'text-red-500';
-  const scoreBg = score >= 80 ? 'from-green-700 to-emerald-800' : score >= 60 ? 'from-amber-700 to-orange-800' : 'from-red-700 to-rose-800';
-  const scoreRing = score >= 80 ? 'ring-green-300' : score >= 60 ? 'ring-amber-300' : 'ring-red-300';
-  const scoreMsg = score === 100 ? '¡Perfecto! 🏆' : score >= 80 ? '¡Excelente! 🎉' : score >= 60 ? '¡Bien hecho! 👍' : 'Sigue practicando 💪';
+  const scoreBg = getScoreBg(score);
+  const scoreRing = getScoreRing(score);
+  const scoreMsg = getScoreMessage(score);
 
   if (!lesson) {
     return (
@@ -119,7 +137,7 @@ export function Results() {
           transition={{ type: 'spring', stiffness: 200 }}
           className="flex flex-col items-center"
         >
-          <p className="text-slate-700 mb-3" role="status" style={{ fontWeight: 600, fontSize: '0.85rem' }}>{scoreMsg}</p>
+          <output className="text-slate-700 mb-3 block" style={{ fontWeight: 600, fontSize: '0.85rem' }}>{scoreMsg}</output>
 
           <div
             className={`w-32 h-32 rounded-full bg-gradient-to-br ${scoreBg} ring-8 ${scoreRing} flex flex-col items-center justify-center shadow-lg mb-4`}
@@ -141,7 +159,7 @@ export function Results() {
           transition={{ delay: 0.3 }}
           className="grid grid-cols-3 gap-3"
         >
-          <div className="bg-white rounded-2xl p-3.5 text-center shadow-sm border border-slate-100" role="group" aria-label={`${correctCount} de ${totalExercises} correctas`}>
+          <fieldset className="bg-white rounded-2xl p-3.5 text-center shadow-sm border border-slate-100 min-w-0" aria-label={`${correctCount} de ${totalExercises} correctas`}>
             <div className="flex justify-center mb-1.5">
               <div className="w-8 h-8 bg-green-100 rounded-xl flex items-center justify-center">
                 <Target className="w-4 h-4 text-green-600" aria-hidden="true" />
@@ -149,8 +167,8 @@ export function Results() {
             </div>
             <p className="text-slate-800" aria-hidden="true" style={{ fontWeight: 700, fontSize: '1.1rem' }}>{correctCount}/{totalExercises}</p>
             <p className="text-slate-600" aria-hidden="true" style={{ fontSize: '0.75rem' }}>correctas</p>
-          </div>
-          <div className="bg-white rounded-2xl p-3.5 text-center shadow-sm border border-slate-100" role="group" aria-label={`${timeMinutes} minutos de tiempo`}>
+          </fieldset>
+          <fieldset className="bg-white rounded-2xl p-3.5 text-center shadow-sm border border-slate-100 min-w-0" aria-label={`${timeMinutes} minutos de tiempo`}>
             <div className="flex justify-center mb-1.5">
               <div className="w-8 h-8 bg-blue-100 rounded-xl flex items-center justify-center">
                 <Clock className="w-4 h-4 text-blue-500" aria-hidden="true" />
@@ -158,8 +176,8 @@ export function Results() {
             </div>
             <p className="text-slate-800" aria-hidden="true" style={{ fontWeight: 700, fontSize: '1.1rem' }}>{timeMinutes}m</p>
             <p className="text-slate-600" aria-hidden="true" style={{ fontSize: '0.75rem' }}>tiempo</p>
-          </div>
-          <div className="bg-white rounded-2xl p-3.5 text-center shadow-sm border border-slate-100" role="group" aria-label={`${xpEarned} XP ganados`}>
+          </fieldset>
+          <fieldset className="bg-white rounded-2xl p-3.5 text-center shadow-sm border border-slate-100 min-w-0" aria-label={`${xpEarned} XP ganados`}>
             <div className="flex justify-center mb-1.5">
               <div className="w-8 h-8 bg-amber-100 rounded-xl flex items-center justify-center">
                 <Zap className="w-4 h-4 text-amber-500" aria-hidden="true" />
@@ -167,7 +185,7 @@ export function Results() {
             </div>
             <p className="text-slate-800" aria-hidden="true" style={{ fontWeight: 700, fontSize: '1.1rem' }}>+{xpEarned}</p>
             <p className="text-slate-600" aria-hidden="true" style={{ fontSize: '0.75rem' }}>XP ganados</p>
-          </div>
+          </fieldset>
         </motion.div>
 
         {/* Error review */}
@@ -185,8 +203,8 @@ export function Results() {
               </h2>
             </div>
             <ul className="divide-y divide-slate-100 list-none">
-              {errors.map((err, i) => (
-                <li key={i} className="px-4 py-3">
+              {errors.map((err) => (
+                <li key={err.exercise.id} className="px-4 py-3">
                   <p className="text-slate-600 mb-1.5" style={{ fontSize: '0.82rem', fontWeight: 500 }}>
                     {err.exercise.question ?? err.exercise.correctAnswer}
                   </p>
