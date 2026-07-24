@@ -53,49 +53,56 @@ function MultipleChoice({
   };
 
   return (
-    <div className="space-y-3">
-      {exercise.options!.map(opt => {
-        const isChosenRight = selected === opt && opt === exercise.correctAnswer;
-        const isChosenWrong = selected === opt && opt !== exercise.correctAnswer;
-        const isRevealedCorrect = !!selected && !isChosenRight && opt === exercise.correctAnswer;
+    <fieldset>
+      {/* legend oculta: vincula las opciones a su pregunta para que un lector de
+          pantalla anuncie el contexto al entrar al grupo, no solo el texto suelto
+          de cada botón */}
+      <legend className="sr-only">{exercise.question ?? exercise.instruction}</legend>
+      <div className="space-y-3">
+        {exercise.options!.map(opt => {
+          const isChosenRight = selected === opt && opt === exercise.correctAnswer;
+          const isChosenWrong = selected === opt && opt !== exercise.correctAnswer;
+          const isRevealedCorrect = !!selected && !isChosenRight && opt === exercise.correctAnswer;
 
-        let optionClass: string;
-        let indicatorClass: string;
-        if (isChosenRight || isRevealedCorrect) {
-          optionClass = 'border-green-400 bg-green-50 text-green-800';
-          indicatorClass = 'border-green-500 bg-green-500';
-        } else if (isChosenWrong) {
-          optionClass = 'border-red-400 bg-red-50 text-red-800';
-          indicatorClass = 'border-red-400 bg-red-400';
-        } else {
-          optionClass = 'border-slate-200 bg-white hover:border-indigo-300 hover:bg-indigo-50 text-slate-700';
-          indicatorClass = 'border-slate-300';
-        }
+          let optionClass: string;
+          let indicatorClass: string;
+          if (isChosenRight || isRevealedCorrect) {
+            optionClass = 'border-green-400 bg-green-50 text-green-800';
+            indicatorClass = 'border-green-500 bg-green-500';
+          } else if (isChosenWrong) {
+            optionClass = 'border-red-400 bg-red-50 text-red-800';
+            indicatorClass = 'border-red-400 bg-red-400';
+          } else {
+            optionClass = 'border-slate-200 bg-white hover:border-indigo-300 hover:bg-indigo-50 text-slate-700';
+            indicatorClass = 'border-slate-300';
+          }
 
-        return (
-          <button
-            key={opt}
-            onClick={() => pick(opt)}
-            disabled={!!selected}
-            lang="en"
-            className={`w-full text-left p-4 rounded-2xl border-2 transition-all ${optionClass}`}
-            style={{ fontWeight: 500 }}
-          >
-            <div className="flex items-center gap-3">
-              <div
-                className={`w-5 h-5 rounded-full border-2 flex items-center justify-center flex-shrink-0 ${indicatorClass}`}
-              >
-                {(isChosenRight || isRevealedCorrect) && <CheckCircle2 className="w-3.5 h-3.5 text-white" aria-hidden="true" />}
-                {isChosenWrong && <XCircle className="w-3.5 h-3.5 text-white" aria-hidden="true" />}
+          return (
+            <button
+              key={opt}
+              onClick={() => pick(opt)}
+              disabled={!!selected}
+              aria-pressed={selected === opt}
+              lang="en"
+              className={`w-full text-left p-4 rounded-2xl border-2 transition-all ${optionClass}`}
+              style={{ fontWeight: 500 }}
+            >
+              <div className="flex items-center gap-3">
+                <div
+                  className={`w-5 h-5 rounded-full border-2 flex items-center justify-center flex-shrink-0 ${indicatorClass}`}
+                >
+                  {(isChosenRight || isRevealedCorrect) && <CheckCircle2 className="w-3.5 h-3.5 text-white" aria-hidden="true" />}
+                  {isChosenWrong && <XCircle className="w-3.5 h-3.5 text-white" aria-hidden="true" />}
+                </div>
+                {opt}
+                {(isChosenRight || isRevealedCorrect) && <CheckCircle2 className="w-4 h-4 text-green-600 ml-auto" aria-hidden="true" />}
+                {isChosenWrong && <XCircle className="w-4 h-4 text-red-500 ml-auto" aria-hidden="true" />}
               </div>
-              {opt}
-              {(isChosenRight || isRevealedCorrect) && <CheckCircle2 className="w-4 h-4 text-green-600 ml-auto" aria-hidden="true" />}
-              {isChosenWrong && <XCircle className="w-4 h-4 text-red-500 ml-auto" aria-hidden="true" />}
-            </div>
-          </button>
-        );
-      })}
-    </div>
+            </button>
+          );
+        })}
+      </div>
+    </fieldset>
   );
 }
 
@@ -153,32 +160,38 @@ function FillBlank({
       </div>
 
       {/* Word bank */}
-      <div className="flex flex-wrap gap-2 justify-center" lang="en">
-        {exercise.wordBank!.map(word => {
-          const isChosenWord = chosen === word;
-          let wordClass: string;
-          if (isChosenWord && submitted) {
-            wordClass = isCorrect ? 'border-green-400 bg-green-100 text-green-800' : 'border-red-400 bg-red-100 text-red-800';
-          } else if (isChosenWord) {
-            wordClass = 'border-indigo-400 bg-indigo-100 text-indigo-700';
-          } else if (submitted) {
-            wordClass = 'border-slate-200 bg-slate-100 text-slate-400 opacity-50';
-          } else {
-            wordClass = 'border-slate-200 bg-white text-slate-700 hover:border-indigo-300 hover:bg-indigo-50';
-          }
-          return (
-            <button
-              key={word}
-              onClick={() => pick(word)}
-              disabled={submitted}
-              className={`px-4 py-2 rounded-xl border-2 transition-all ${wordClass}`}
-              style={{ fontWeight: 500 }}
-            >
-              {word}
-            </button>
-          );
-        })}
-      </div>
+      <fieldset>
+        {/* legend oculta: da contexto de la oración (con el hueco) a las palabras
+            del banco, ya que este ejercicio no tiene un campo "question" propio */}
+        <legend className="sr-only" lang="en">{exercise.sentence!.replace('[BLANK]', 'blank')}</legend>
+        <div className="flex flex-wrap gap-2 justify-center" lang="en">
+          {exercise.wordBank!.map(word => {
+            const isChosenWord = chosen === word;
+            let wordClass: string;
+            if (isChosenWord && submitted) {
+              wordClass = isCorrect ? 'border-green-400 bg-green-100 text-green-800' : 'border-red-400 bg-red-100 text-red-800';
+            } else if (isChosenWord) {
+              wordClass = 'border-indigo-400 bg-indigo-100 text-indigo-700';
+            } else if (submitted) {
+              wordClass = 'border-slate-200 bg-slate-100 text-slate-400 opacity-50';
+            } else {
+              wordClass = 'border-slate-200 bg-white text-slate-700 hover:border-indigo-300 hover:bg-indigo-50';
+            }
+            return (
+              <button
+                key={word}
+                onClick={() => pick(word)}
+                disabled={submitted}
+                aria-pressed={isChosenWord}
+                className={`px-4 py-2 rounded-xl border-2 transition-all ${wordClass}`}
+                style={{ fontWeight: 500 }}
+              >
+                {word}
+              </button>
+            );
+          })}
+        </div>
+      </fieldset>
 
       {/* Submit */}
       {!submitted && (
@@ -202,6 +215,54 @@ function FillBlank({
 // ─────────────────────────────────────────────
 // Word Order
 // ─────────────────────────────────────────────
+interface WordToken {
+  word: string;
+  id: number;
+}
+
+// Ficha de palabra que se autoenfoca al montar. Al mover una palabra entre el
+// banco y la respuesta, el botón pulsado se destruye y aparece uno nuevo en la
+// otra zona; sin esto el foco de teclado caería al <body> en cada movimiento
+// (WCAG 2.4.3), obligando a una persona ciega a tabular desde el principio de
+// la página para seguir ordenando. La key es el id estable (no el índice),
+// porque algunas oraciones repiten una palabra dos veces en el mismo banco.
+function WordChip({
+  token,
+  autoFocus,
+  onClick,
+  disabled,
+  ariaLabel,
+  className,
+  fontWeight,
+}: Readonly<{
+  token: WordToken;
+  autoFocus: boolean;
+  onClick: () => void;
+  disabled: boolean;
+  ariaLabel: string;
+  className: string;
+  fontWeight: number;
+}>) {
+  const ref = useRef<HTMLButtonElement>(null);
+  useEffect(() => {
+    if (autoFocus) ref.current?.focus();
+  }, []); // eslint-disable-line react-hooks/exhaustive-deps
+
+  return (
+    <button
+      ref={ref}
+      onClick={onClick}
+      disabled={disabled}
+      lang="en"
+      aria-label={ariaLabel}
+      className={className}
+      style={{ fontWeight }}
+    >
+      {token.word}
+    </button>
+  );
+}
+
 function WordOrder({
   exercise,
   onAnswer,
@@ -209,30 +270,34 @@ function WordOrder({
   exercise: ExerciseItem;
   onAnswer: (answer: string) => void;
 }>) {
-  const [available, setAvailable] = useState<string[]>([...(exercise.wordBank ?? [])]);
-  const [selected, setSelected] = useState<string[]>([]);
+  const [available, setAvailable] = useState<WordToken[]>(
+    () => (exercise.wordBank ?? []).map((word, id) => ({ word, id }))
+  );
+  const [selected, setSelected] = useState<WordToken[]>([]);
   const [submitted, setSubmitted] = useState(false);
+  const [lastMovedId, setLastMovedId] = useState<number | null>(null);
 
-  const addWord = (word: string, idx: number) => {
+  const addWord = (token: WordToken) => {
     if (submitted) return;
-    setAvailable(a => a.filter((_, i) => i !== idx));
-    setSelected(s => [...s, word]);
+    setAvailable(a => a.filter(t => t.id !== token.id));
+    setSelected(s => [...s, token]);
+    setLastMovedId(token.id);
   };
 
-  const removeWord = (idx: number) => {
+  const removeWord = (token: WordToken) => {
     if (submitted) return;
-    const word = selected[idx];
-    setSelected(s => s.filter((_, i) => i !== idx));
-    setAvailable(a => [...a, word]);
+    setSelected(s => s.filter(t => t.id !== token.id));
+    setAvailable(a => [...a, token]);
+    setLastMovedId(token.id);
   };
 
   const submit = () => {
     if (selected.length === 0 || submitted) return;
     setSubmitted(true);
-    onAnswer(selected.join(' '));
+    onAnswer(selected.map(t => t.word).join(' '));
   };
 
-  const userAnswer = selected.join(' ');
+  const userAnswer = selected.map(t => t.word).join(' ');
   const isCorrect = checkAnswer(userAnswer, exercise.correctAnswer);
 
   let answerAreaClass: string;
@@ -245,59 +310,64 @@ function WordOrder({
   return (
     <div className="space-y-5">
       {/* Answer area */}
-      <div
-        className={`min-h-[3.5rem] bg-white rounded-2xl border-2 p-3 flex flex-wrap gap-2 transition-colors ${answerAreaClass}`}
-      >
-        {selected.length === 0 && (
-          <span className="text-slate-500 self-center mx-auto" style={{ fontSize: '0.85rem' }}>
-            Toca las palabras para ordenarlas
-          </span>
-        )}
-        {selected.map((word, i) => {
-          let selectedWordClass: string;
-          if (submitted) {
-            selectedWordClass = isCorrect ? 'border-green-400 bg-green-100 text-green-800' : 'border-red-300 bg-red-100 text-red-800';
-          } else {
-            selectedWordClass = 'border-indigo-300 bg-indigo-100 text-indigo-700 hover:bg-indigo-200';
-          }
-          return (
-            <button
-              key={`${word}-${i}`}
-              onClick={() => removeWord(i)}
-              disabled={submitted}
-              lang="en"
-              aria-label={`Quitar la palabra ${word} de tu respuesta`}
-              className={`px-3 py-1.5 rounded-xl border-2 transition-all ${selectedWordClass}`}
-              style={{ fontWeight: 600 }}
-            >
-              {word}
-            </button>
-          );
-        })}
-      </div>
+      <fieldset>
+        <legend className="sr-only">{`${exercise.instruction}. Tu respuesta actual`}</legend>
+        <div
+          className={`min-h-[3.5rem] bg-white rounded-2xl border-2 p-3 flex flex-wrap gap-2 transition-colors ${answerAreaClass}`}
+        >
+          {selected.length === 0 && (
+            <span className="text-slate-500 self-center mx-auto" style={{ fontSize: '0.85rem' }}>
+              Toca las palabras para ordenarlas
+            </span>
+          )}
+          {selected.map((token, i) => {
+            let selectedWordClass: string;
+            if (submitted) {
+              selectedWordClass = isCorrect ? 'border-green-400 bg-green-100 text-green-800' : 'border-red-300 bg-red-100 text-red-800';
+            } else {
+              selectedWordClass = 'border-indigo-300 bg-indigo-100 text-indigo-700 hover:bg-indigo-200';
+            }
+            return (
+              <WordChip
+                key={token.id}
+                token={token}
+                autoFocus={token.id === lastMovedId}
+                onClick={() => removeWord(token)}
+                disabled={submitted}
+                ariaLabel={`Quitar la palabra ${token.word} de tu respuesta, posición ${i + 1} de ${selected.length}`}
+                className={`px-3 py-1.5 rounded-xl border-2 transition-all ${selectedWordClass}`}
+                fontWeight={600}
+              />
+            );
+          })}
+        </div>
+      </fieldset>
 
       {/* Separator */}
       <div className="h-px bg-slate-100" />
 
       {/* Word bank */}
-      <div className="flex flex-wrap gap-2" lang="en">
-        {available.map((word, i) => (
-          <button
-            key={`${word}-${i}`}
-            onClick={() => addWord(word, i)}
-            disabled={submitted}
-            aria-label={`Añadir la palabra ${word} a tu respuesta`}
-            className={`px-3 py-2 rounded-xl border-2 transition-all ${
-              submitted
-                ? 'border-slate-200 bg-slate-100 text-slate-400 opacity-40'
-                : 'border-slate-200 bg-white text-slate-700 hover:border-indigo-300 hover:bg-indigo-50 active:scale-95'
-            }`}
-            style={{ fontWeight: 500 }}
-          >
-            {word}
-          </button>
-        ))}
-      </div>
+      <fieldset>
+        <legend className="sr-only">Banco de palabras disponibles</legend>
+        <div className="flex flex-wrap gap-2" lang="en">
+          {available.map(token => (
+            <WordChip
+              key={token.id}
+              token={token}
+              autoFocus={token.id === lastMovedId}
+              onClick={() => addWord(token)}
+              disabled={submitted}
+              ariaLabel={`Añadir la palabra ${token.word} a tu respuesta`}
+              className={`px-3 py-2 rounded-xl border-2 transition-all ${
+                submitted
+                  ? 'border-slate-200 bg-slate-100 text-slate-400 opacity-40'
+                  : 'border-slate-200 bg-white text-slate-700 hover:border-indigo-300 hover:bg-indigo-50 active:scale-95'
+              }`}
+              fontWeight={500}
+            />
+          ))}
+        </div>
+      </fieldset>
 
       {/* Submit */}
       {!submitted && (
@@ -356,7 +426,7 @@ function Translate({
         onChange={e => !submitted && setValue(e.target.value)}
         onKeyDown={e => { if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); submit(); } }}
         placeholder="Escribe tu respuesta en inglés..."
-        aria-label="Escribe tu respuesta en inglés"
+        aria-label={`Escribe tu respuesta en inglés para: ${exercise.question}`}
         lang="en"
         disabled={submitted}
         className={`w-full rounded-2xl border-2 p-4 resize-none outline-none transition-colors placeholder:text-slate-500 ${textareaClass}`}
